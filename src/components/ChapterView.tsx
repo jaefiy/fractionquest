@@ -18,12 +18,24 @@ interface ChapterViewProps {
 
 export const ChapterView: React.FC<ChapterViewProps> = ({ chapter, onOpenMap }) => {
   const { language, t } = useLanguage();
-  const { progress, setCurrentChapter, markChapterComplete } = useProgress();
+  const { progress, setCurrentChapter, markChapterComplete, isActivityComplete } = useProgress();
 
   const isCompleted = progress.completedChapters.includes(chapter.id);
 
   const handleNext = () => {
-    markChapterComplete(chapter.id);
+    // Check if current chapter's essential activities are done
+    if (chapter.id === 4) {
+      if (isActivityComplete('ch4_addition') && isActivityComplete('ch4_detective')) {
+        markChapterComplete(4);
+      }
+    } else if (chapter.id === 5) {
+      if (isActivityComplete('ch5_addition') && isActivityComplete('ch5_problems') && isActivityComplete('ch5_detective')) {
+        markChapterComplete(5);
+      }
+    } else {
+      markChapterComplete(chapter.id);
+    }
+
     if (chapter.id < 5) {
       setCurrentChapter(chapter.id + 1);
     } else {

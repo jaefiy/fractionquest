@@ -29,24 +29,16 @@ describe('Chapter4Activity Interactive Tests', () => {
     expect(screen.getByText('1/2 + 1/4 = ?')).toBeInTheDocument();
   });
 
-  it('navigates between activities using bottom Previous and Next Activity buttons', () => {
+  it('shows friendly warning message when Next Activity is clicked before completing addition task', () => {
     renderWithProviders(<Chapter4Activity />);
 
-    // Initial tab: Addition Challenge. Previous Activity should be disabled
-    const prevBtn = screen.getByRole('button', { name: /Aktiviti Sebelum|Previous Activity/i });
     const nextBtn = screen.getByRole('button', { name: /Aktiviti Seterusnya|Next Activity/i });
 
-    expect(prevBtn).toBeDisabled();
-    expect(nextBtn).not.toBeDisabled();
-
-    // Click Next Activity -> Navigates to Misconception Detective
+    // Click Next Activity before solving question
     fireEvent.click(nextBtn);
-    expect(screen.getByText(/1\/3 \+ 1\/5 = 2\/8/i)).toBeInTheDocument();
-    expect(nextBtn).toBeDisabled();
-    expect(prevBtn).not.toBeDisabled();
 
-    // Click Previous Activity -> Navigates back to Addition Challenge
-    fireEvent.click(prevBtn);
+    // Friendly warning message should appear and activity should stay on Addition Challenge
+    expect(screen.getByText(/Sila selesaikan sekurang-kurangnya satu soalan/i)).toBeInTheDocument();
     expect(screen.getByText('1/2 + 1/4 = ?')).toBeInTheDocument();
   });
 
@@ -78,57 +70,17 @@ describe('Chapter4Activity Interactive Tests', () => {
   });
 });
 
-describe('Chapter5Activity & Sequential Navigation Tests', () => {
-  it('navigates through all 5 sequence steps in Chapter 5 using bottom navigation buttons', () => {
+describe('Chapter5Activity & Certificate Tests', () => {
+  it('displays locked certificate panel when requirements are incomplete', () => {
     renderWithProviders(<Chapter5Activity />);
 
-    const prevBtn = screen.getByRole('button', { name: /Aktiviti Sebelum|Previous Activity/i });
-    const nextBtn = screen.getByRole('button', { name: /Aktiviti Seterusnya|Next Activity/i });
+    // Switch to Certificate tab
+    const certTabBtn = screen.getByRole('button', { name: /5\. Sijil|5\. Certificate/i });
+    fireEvent.click(certTabBtn);
 
-    // Step 1: Final Addition
-    expect(screen.getByText(/Cabaran Penambahan Variasi Penyebut|Varied Denominator Addition Challenge/i)).toBeInTheDocument();
-    expect(prevBtn).toBeDisabled();
-
-    // Move to Step 2: Real-Life Word Problems
-    fireEvent.click(nextBtn);
-    expect(screen.getByText(/Soalan Kehidupan Sebenar|Real-Life Word Problems/i)).toBeInTheDocument();
-    expect(prevBtn).not.toBeDisabled();
-
-    // Move to Step 3: Misconception Detective
-    fireEvent.click(nextBtn);
-    expect(screen.getByText(/Detektif Mitos Bab 5|Chapter 5 Misconception Detective/i)).toBeInTheDocument();
-
-    // Move to Step 4: Post-Quiz
-    fireEvent.click(nextBtn);
-    expect(screen.getByText(/Pasca-Kuiz Minda Pecahan|Fraction Mind Post-Quiz/i)).toBeInTheDocument();
-
-    // Move to Step 5: Certificate
-    fireEvent.click(nextBtn);
-    expect(screen.getByText(/SIJIL KEJAYAN FRACTIONQUEST|FRACTIONQUEST COMPLETION CERTIFICATE/i)).toBeInTheDocument();
-    expect(nextBtn).toBeDisabled();
-
-    // Move back to Step 4: Post-Quiz
-    fireEvent.click(prevBtn);
-    expect(screen.getByText(/Pasca-Kuiz Minda Pecahan|Fraction Mind Post-Quiz/i)).toBeInTheDocument();
-  });
-
-  it('preserves user state and inputs across activity transitions in Chapter 5', () => {
-    renderWithProviders(<Chapter5Activity />);
-
-    const nextBtn = screen.getByRole('button', { name: /Aktiviti Seterusnya|Next Activity/i });
-    const prevBtn = screen.getByRole('button', { name: /Aktiviti Sebelum|Previous Activity/i });
-
-    // Fill conversion input in Step 1
-    const inputs = screen.getAllByPlaceholderText('?');
-    fireEvent.change(inputs[0], { target: { value: '3' } }); // eqN1
-
-    // Navigate to Step 2 and back
-    fireEvent.click(nextBtn);
-    fireEvent.click(prevBtn);
-
-    // Verify input value is preserved
-    const inputsAfter = screen.getAllByPlaceholderText('?');
-    expect((inputsAfter[0] as HTMLInputElement).value).toBe('3');
+    // Should display locked warning and requirements checklist
+    expect(screen.getByText(/Sijil Penyelesaian Kembara Masih Terkunci|Quest Completion Certificate is Locked/i)).toBeInTheDocument();
+    expect(screen.getByText(/Aktiviti Bab 1–3|Chapter 1–3 Activities/i)).toBeInTheDocument();
   });
 
   it('renders QuizModal, does not reveal answers while answering, and computes correct score', () => {

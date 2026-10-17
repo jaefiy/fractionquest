@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export interface ProgressState {
   completedChapters: number[]; // e.g. [1, 2]
+  completedActivities: string[]; // e.g. ['ch4_addition', 'ch4_detective', 'ch5_addition', 'ch5_problems', 'ch5_detective']
   currentChapter: number;      // 1 to 5, 0 = Welcome Page
   highestUnlocked: number;     // 1 to 5
   preQuizScore: number | null; // 0 to 5, null if not attempted
@@ -12,7 +13,10 @@ interface ProgressContextType {
   progress: ProgressState;
   setCurrentChapter: (chapter: number) => void;
   markChapterComplete: (chapter: number) => void;
+  markActivityComplete: (activityId: string) => void;
+  isActivityComplete: (activityId: string) => boolean;
   isChapterUnlocked: (chapter: number) => boolean;
+  isCertificateUnlocked: () => boolean;
   savePreQuizScore: (score: number) => void;
   savePostQuizScore: (score: number) => void;
   resetProgress: () => void;
@@ -22,6 +26,7 @@ const PROGRESS_STORAGE_KEY = 'fractionquest_progress';
 
 const initialProgress: ProgressState = {
   completedChapters: [],
+  completedActivities: [],
   currentChapter: 0, // 0 means Welcome page
   highestUnlocked: 1,
   preQuizScore: null,
@@ -40,6 +45,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           return {
             ...initialProgress,
             ...parsed,
+            completedActivities: Array.isArray(parsed.completedActivities) ? parsed.completedActivities : [],
           };
         }
       }
@@ -79,9 +85,34 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
   };
 
+  const markActivityComplete = (activityId: string) => {
+    setProgress((prev) => {
+      const actSet = new Set(prev.completedActivities);
+      actSet.add(activityId);
+      return {
+        ...prev,
+        completedActivities: Array.from(actSet),
+      };
+    });
+  };
+
+  const isActivityComplete = (activityId: string): boolean => {
+    return progress.completedActivities.includes(activityId);
+  };
+
   const isChapterUnlocked = (chapter: number): boolean => {
     if (chapter === 1) return true;
     return progress.highestUnlocked >= chapter;
+  };
+
+  const isCertificateUnlocked = (): boolean => {
+    // Requires chapters 1..5 marked complete or all essential activities complete AND post-quiz submitted
+    const hasPostQuiz = progress.postQuizScore !== null;
+    const ch4Complete = isActivityComplete('ch4_addition') && isActivityComplete('ch4_detective');
+    const ch5Complete = isActivityComplete('ch5_addition') && isActivityComplete('ch5_problems') && isActivityComplete('ch5_detective');
+    const ch1To3Complete = [1, 2, 3].every((ch) => progress.completedChapters.includes(ch));
+
+    return hasPostQuiz && (ch1To3Complete || progress.completedChapters.includes(5)) && ch4Complete && ch5Complete;
   };
 
   const savePreQuizScore = (score: number) => {
@@ -102,7 +133,10 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         progress,
         setCurrentChapter,
         markChapterComplete,
+        markActivityComplete,
+        isActivityComplete,
         isChapterUnlocked,
+        isCertificateUnlocked,
         savePreQuizScore,
         savePostQuizScore,
         resetProgress,

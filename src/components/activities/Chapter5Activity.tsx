@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useProgress } from '../../context/ProgressContext';
 import {
@@ -17,6 +17,9 @@ import {
   ClipboardCheck,
   ArrowRight,
   ArrowLeft,
+  Printer,
+  Lock,
+  Info,
 } from 'lucide-react';
 
 interface Chapter5ActivityProps {
@@ -78,7 +81,7 @@ const SEQUENCE_TABS: Chapter5Tab[] = ['ADDITION', 'PROBLEMS', 'DETECTIVE', 'POST
 
 export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }) => {
   const { language, t } = useLanguage();
-  const { progress, savePostQuizScore } = useProgress();
+  const { progress, savePostQuizScore, markActivityComplete, isActivityComplete, isCertificateUnlocked } = useProgress();
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Active step in sequence
@@ -119,6 +122,30 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
   // Certificate pupil name state
   const [pupilName, setPupilName] = useState<string>('');
 
+  // Guidance warning banner state
+  const [warningMsg, setWarningMsg] = useState<string | null>(null);
+
+  const isAddDone = (addSumDiag?.isCorrect) || isActivityComplete('ch5_addition');
+  const isWpDone = (wpSumDiag?.isCorrect) || isActivityComplete('ch5_problems');
+  const isDetDone = (detDiag?.isCorrect) || isActivityComplete('ch5_detective');
+  const isPostQuizDone = progress.postQuizScore !== null || isActivityComplete('ch5_postquiz');
+
+  useEffect(() => {
+    if (isAddDone) markActivityComplete('ch5_addition');
+  }, [isAddDone]);
+
+  useEffect(() => {
+    if (isWpDone) markActivityComplete('ch5_problems');
+  }, [isWpDone]);
+
+  useEffect(() => {
+    if (isDetDone) markActivityComplete('ch5_detective');
+  }, [isDetDone]);
+
+  useEffect(() => {
+    if (isPostQuizDone) markActivityComplete('ch5_postquiz');
+  }, [isPostQuizDone]);
+
   const currentTabIdx = SEQUENCE_TABS.indexOf(activeTab);
 
   const scrollToTop = () => {
@@ -128,17 +155,58 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
   };
 
   const switchTab = (tab: Chapter5Tab) => {
+    setWarningMsg(null);
     setActiveTab(tab);
     scrollToTop();
   };
 
   const handlePrevTab = () => {
+    setWarningMsg(null);
     if (currentTabIdx > 0) {
       switchTab(SEQUENCE_TABS[currentTabIdx - 1]);
     }
   };
 
   const handleNextTab = () => {
+    setWarningMsg(null);
+
+    // Validate completion requirements before allowing advancing
+    if (activeTab === 'ADDITION' && !isAddDone) {
+      setWarningMsg(
+        language === 'ms'
+          ? 'Sila selesaikan cabaran penambahan 1/4 + 1/6 terlebih dahulu sebelum meneruskan!'
+          : 'Please complete the 1/4 + 1/6 addition challenge first before proceeding!'
+      );
+      return;
+    }
+
+    if (activeTab === 'PROBLEMS' && !isWpDone) {
+      setWarningMsg(
+        language === 'ms'
+          ? 'Sila selesaikan sekurang-kurangnya satu soalan masalah kehidupan sebenar!'
+          : 'Please solve at least one real-life word problem!'
+      );
+      return;
+    }
+
+    if (activeTab === 'DETECTIVE' && !isDetDone) {
+      setWarningMsg(
+        language === 'ms'
+          ? 'Sila betulkan mitos pecahan dalam aktiviti Detektif Mitos terlebih dahulu!'
+          : 'Please correct the fraction myth in Misconception Detective first!'
+      );
+      return;
+    }
+
+    if (activeTab === 'POST_QUIZ' && !isPostQuizDone) {
+      setWarningMsg(
+        language === 'ms'
+          ? 'Sila jawab dan hantar Pasca-Kuiz terlebih dahulu sebelum melihat Sijil Pencapaian!'
+          : 'Please answer and submit the Post-Quiz first before viewing the Completion Certificate!'
+      );
+      return;
+    }
+
     if (currentTabIdx < SEQUENCE_TABS.length - 1) {
       switchTab(SEQUENCE_TABS[currentTabIdx + 1]);
     }
@@ -162,6 +230,9 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
 
     const diag = diagnoseFractionAdditionSum(addN1, addD1, addN2, addD2, fn, fd);
     setAddSumDiag(diag);
+    if (diag.isCorrect) {
+      markActivityComplete('ch5_addition');
+    }
   };
 
   // Handle Word problem conversion & sum check
@@ -182,6 +253,9 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
 
     const diag = diagnoseFractionAdditionSum(currentWP.n1, currentWP.d1, currentWP.n2, currentWP.d2, fn, fd);
     setWpSumDiag(diag);
+    if (diag.isCorrect) {
+      markActivityComplete('ch5_problems');
+    }
   };
 
   // Handle Misconception detective check
@@ -193,10 +267,22 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
     // Misconception target: 1/4 + 1/6 = 5/12
     const diag = diagnoseFractionAdditionSum(1, 4, 1, 6, fn, fd);
     setDetDiag(diag);
-    if (diag.isCorrect && onComplete) {
-      onComplete();
+    if (diag.isCorrect) {
+      markActivityComplete('ch5_detective');
+      if (onComplete) onComplete();
     }
   };
+
+  const handlePrintCertificate = () => {
+    window.print();
+  };
+
+  const isCertUnlocked = isCertificateUnlocked();
+  const currentDateFormatted = new Date().toLocaleDateString(language === 'ms' ? 'ms-MY' : 'en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 
   return (
     <div ref={containerRef} className="bg-white rounded-3xl p-5 sm:p-6 border-2 border-amber-300 shadow-md space-y-6">
@@ -230,6 +316,7 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>1. {language === 'ms' ? 'Penambahan' : 'Addition'}</span>
+            {isAddDone && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />}
           </button>
           <button
             onClick={() => switchTab('PROBLEMS')}
@@ -241,6 +328,7 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
           >
             <BookOpen className="w-3.5 h-3.5" />
             <span>2. {language === 'ms' ? 'Soalan' : 'Problems'}</span>
+            {isWpDone && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />}
           </button>
           <button
             onClick={() => switchTab('DETECTIVE')}
@@ -252,6 +340,7 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
           >
             <Search className="w-3.5 h-3.5" />
             <span>3. {language === 'ms' ? 'Detektif' : 'Detective'}</span>
+            {isDetDone && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />}
           </button>
           <button
             onClick={() => switchTab('POST_QUIZ')}
@@ -263,6 +352,7 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
           >
             <ClipboardCheck className="w-3.5 h-3.5" />
             <span>4. {language === 'ms' ? 'Pasca-Kuiz' : 'Post-Quiz'}</span>
+            {isPostQuizDone && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />}
           </button>
           <button
             onClick={() => switchTab('CERTIFICATE')}
@@ -274,9 +364,20 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
           >
             <Award className="w-3.5 h-3.5" />
             <span>5. {language === 'ms' ? 'Sijil' : 'Certificate'}</span>
+            {isCertUnlocked && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />}
           </button>
         </div>
       </div>
+
+      {/* Warning callout if user tries to advance prematurely */}
+      {warningMsg && (
+        <div className="bg-amber-50 border-2 border-amber-300 p-4 rounded-2xl flex items-start gap-3 animate-fadeIn shadow-sm">
+          <Info className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+          <p className="font-quicksand font-bold text-xs sm:text-sm text-amber-900 leading-relaxed">
+            {warningMsg}
+          </p>
+        </div>
+      )}
 
       {/* SECTION 1: FRACTION ADDITION CHALLENGES WITH VARIED DENOMINATORS */}
       {activeTab === 'ADDITION' && (
@@ -639,57 +740,148 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
       {/* SECTION 5: COMPLETION CERTIFICATE */}
       {activeTab === 'CERTIFICATE' && (
         <div className="space-y-6 animate-fadeIn">
-          {/* Certificate Frame */}
-          <div className="bg-cream-50 border-8 border-double border-amber-400 rounded-3xl p-6 text-center space-y-4 shadow-xl relative overflow-hidden">
-            <div className="inline-flex items-center gap-2 bg-amber-100 text-amber-900 px-4 py-1 rounded-full font-fredoka font-bold text-xs">
-              <Award className="w-4 h-4 text-amber-600" />
-              <span>{language === 'ms' ? 'Sijil Pencapaian KSSR Matematik' : 'KSSR Mathematics Achievement Certificate'}</span>
-            </div>
-
-            <h3 className="font-fredoka text-2xl sm:text-4xl font-extrabold text-slate-800 tracking-wide">
-              {language === 'ms' ? 'SIJIL KEJAYAN FRACTIONQUEST' : 'FRACTIONQUEST COMPLETION CERTIFICATE'}
-            </h3>
-
-            <p className="font-quicksand font-semibold text-xs sm:text-sm text-slate-600">
-              {language === 'ms'
-                ? 'Dengan ini dianugerahkan kepada pengembara bijak:'
-                : 'This certificate is proudly awarded to:'}
-            </p>
-
-            <div className="max-w-xs mx-auto">
-              <input
-                type="text"
-                value={pupilName}
-                onChange={(e) => setPupilName(e.target.value)}
-                placeholder={language === 'ms' ? 'Masukkan Nama Anda' : 'Enter Your Name'}
-                className="w-full text-center p-2.5 rounded-xl border-2 border-amber-300 font-fredoka font-extrabold text-lg sm:text-2xl text-amber-950 bg-white focus:outline-none shadow-sm"
-              />
-            </div>
-
-            <p className="font-quicksand font-medium text-xs sm:text-sm text-slate-700 max-w-lg mx-auto">
-              {language === 'ms'
-                ? 'Kerana berjaya menyelesaikan semua bab kembara penambahan pecahan wajar penyebut berbeza KSSR Tahun 4!'
-                : 'For successfully mastering proper fraction addition with different denominators in Year 4 KSSR!'}
-            </p>
-
-            {/* Scores summary box */}
-            <div className="bg-white/90 p-4 rounded-2xl border border-amber-300 max-w-md mx-auto grid grid-cols-2 gap-3 text-xs font-fredoka font-bold text-slate-800">
-              <div className="bg-amber-50 p-2.5 rounded-xl border border-amber-200">
-                <span>{language === 'ms' ? 'Skor Pra-Kuiz:' : 'Pre-Quiz Score:'}</span>
-                <span className="block text-lg text-amber-700">{progress.preQuizScore !== null ? `${progress.preQuizScore}/5` : '-'}</span>
+          {!isCertUnlocked ? (
+            /* Locked Certificate Panel */
+            <div className="bg-amber-50/90 border-4 border-dashed border-amber-300 rounded-3xl p-6 text-center space-y-4 shadow-sm">
+              <div className="w-16 h-16 bg-amber-200 border-2 border-amber-400 text-amber-800 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+                <Lock className="w-8 h-8" />
               </div>
-              <div className="bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
-                <span>{language === 'ms' ? 'Skor Pasca-Kuiz:' : 'Post-Quiz Score:'}</span>
-                <span className="block text-lg text-emerald-700">{progress.postQuizScore !== null ? `${progress.postQuizScore}/5` : '-'}</span>
+
+              <div className="space-y-2">
+                <h4 className="font-fredoka text-xl sm:text-2xl font-extrabold text-amber-950">
+                  {language === 'ms' ? 'Sijil Penyelesaian Kembara Masih Terkunci' : 'Quest Completion Certificate is Locked'}
+                </h4>
+                <p className="font-quicksand font-semibold text-xs sm:text-sm text-slate-700 max-w-lg mx-auto leading-relaxed">
+                  {language === 'ms'
+                    ? 'Untuk membuka Sijil Penyelesaian Kembara, anda perlu melengkapkan semua aktiviti pembelajaran dalam Bab 1 hingga Bab 5 dan menghantar Pasca-Kuiz.'
+                    : 'To unlock the Quest Completion Certificate, you must complete all learning activities in Chapters 1 to 5 and submit the Post-Quiz.'}
+                </p>
+              </div>
+
+              {/* Requirement Checklist */}
+              <div className="bg-white p-4 rounded-2xl border border-amber-300 max-w-md mx-auto text-left space-y-2.5 text-xs sm:text-sm font-fredoka font-bold text-slate-800">
+                <div className="flex items-center justify-between">
+                  <span>1. {language === 'ms' ? 'Aktiviti Bab 1–3' : 'Chapter 1–3 Activities'}</span>
+                  {[1, 2, 3].every((ch) => progress.completedChapters.includes(ch)) ? (
+                    <span className="text-emerald-600 font-bold flex items-center gap-1">
+                      <CheckCircle2 className="w-4 h-4" /> {language === 'ms' ? 'Selesai' : 'Done'}
+                    </span>
+                  ) : (
+                    <span className="text-amber-600 font-semibold">{language === 'ms' ? 'Belum Selesai' : 'Incomplete'}</span>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between border-t pt-2">
+                  <span>2. {language === 'ms' ? 'Penambahan & Detektif Bab 4' : 'Chapter 4 Addition & Detective'}</span>
+                  {isActivityComplete('ch4_addition') && isActivityComplete('ch4_detective') ? (
+                    <span className="text-emerald-600 font-bold flex items-center gap-1">
+                      <CheckCircle2 className="w-4 h-4" /> {language === 'ms' ? 'Selesai' : 'Done'}
+                    </span>
+                  ) : (
+                    <span className="text-amber-600 font-semibold">{language === 'ms' ? 'Belum Selesai' : 'Incomplete'}</span>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between border-t pt-2">
+                  <span>3. {language === 'ms' ? 'Penambahan & Soalan Bab 5' : 'Chapter 5 Addition & Problems'}</span>
+                  {isAddDone && isWpDone && isDetDone ? (
+                    <span className="text-emerald-600 font-bold flex items-center gap-1">
+                      <CheckCircle2 className="w-4 h-4" /> {language === 'ms' ? 'Selesai' : 'Done'}
+                    </span>
+                  ) : (
+                    <span className="text-amber-600 font-semibold">{language === 'ms' ? 'Belum Selesai' : 'Incomplete'}</span>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between border-t pt-2">
+                  <span>4. {language === 'ms' ? 'Penghantaran Pasca-Kuiz' : 'Post-Quiz Submitted'}</span>
+                  {isPostQuizDone ? (
+                    <span className="text-emerald-600 font-bold flex items-center gap-1">
+                      <CheckCircle2 className="w-4 h-4" /> {language === 'ms' ? 'Selesai' : 'Done'}
+                    </span>
+                  ) : (
+                    <span className="text-amber-600 font-semibold">{language === 'ms' ? 'Belum Dihantar' : 'Not Submitted'}</span>
+                  )}
+                </div>
               </div>
             </div>
+          ) : (
+            /* Unlocked Certificate Frame */
+            <div className="space-y-4">
+              <div className="bg-cream-50 border-8 border-double border-amber-400 rounded-3xl p-6 sm:p-8 text-center space-y-5 shadow-2xl relative overflow-hidden print:border-4 print:shadow-none print:bg-white print:p-4">
+                <div className="inline-flex items-center gap-2 bg-amber-100 text-amber-900 px-4 py-1.5 rounded-full font-fredoka font-bold text-xs sm:text-sm shadow-sm">
+                  <Award className="w-5 h-5 text-amber-600" />
+                  <span>{language === 'ms' ? 'SIJIL PENYELESAIAN KEMBARA' : 'QUEST COMPLETION CERTIFICATE'}</span>
+                </div>
 
-            <div className="pt-2 text-xs font-quicksand font-semibold text-slate-500">
-              {language === 'ms'
-                ? 'Disahkan oleh Fino Si Musang • FractionQuest KSSR Tahun 4'
-                : 'Verified by Fino the Explorer Fox • FractionQuest Year 4 KSSR'}
+                <h3 className="font-fredoka text-2xl sm:text-4xl font-extrabold text-slate-800 tracking-wide leading-tight">
+                  {language === 'ms' ? 'SIJIL PENYELESAIAN KEMBARA FRACTIONQUEST' : 'FRACTIONQUEST COMPLETION CERTIFICATE'}
+                </h3>
+
+                <p className="font-quicksand font-bold text-xs sm:text-sm text-slate-600">
+                  {language === 'ms'
+                    ? 'Dengan ini dianugerahkan kepada pengembara bijak:'
+                    : 'This certificate is proudly awarded to:'}
+                </p>
+
+                <div className="max-w-xs mx-auto">
+                  <input
+                    type="text"
+                    value={pupilName}
+                    onChange={(e) => setPupilName(e.target.value)}
+                    placeholder={language === 'ms' ? 'Masukkan Nama Anda' : 'Enter Your Name'}
+                    className="w-full text-center p-3 rounded-2xl border-2 border-amber-300 font-fredoka font-extrabold text-xl sm:text-3xl text-amber-950 bg-white focus:outline-none shadow-inner"
+                  />
+                </div>
+
+                <p className="font-quicksand font-semibold text-xs sm:text-base text-slate-700 max-w-xl mx-auto leading-relaxed">
+                  {language === 'ms'
+                    ? 'Kerana berjaya menyempurnakan semua bab dan tugasan kembara penambahan pecahan wajar penyebut berbeza KSSR Tahun 4!'
+                    : 'For successfully completing all adventure chapters and tasks for proper fraction addition with different denominators in Year 4 KSSR!'}
+                </p>
+
+                {/* Distinction Notice */}
+                <div className="bg-amber-100/70 border border-amber-300 p-3 rounded-2xl max-w-lg mx-auto text-[11px] sm:text-xs font-quicksand font-bold text-amber-900">
+                  ℹ️ {language === 'ms'
+                    ? 'Nota: Sijil ini mengesahkan penyelesaian kembara pembelajaran interaktif storybook FractionQuest.'
+                    : 'Note: This certificate verifies completion of the interactive FractionQuest storybook learning adventure.'}
+                </div>
+
+                {/* Scores & Date Summary */}
+                <div className="bg-white/90 p-4 rounded-2xl border-2 border-amber-300 max-w-md mx-auto grid grid-cols-3 gap-2 text-xs font-fredoka font-bold text-slate-800 shadow-sm">
+                  <div className="bg-amber-50 p-2.5 rounded-xl border border-amber-200">
+                    <span className="block text-[10px] text-slate-500">{language === 'ms' ? 'Pra-Kuiz' : 'Pre-Quiz'}</span>
+                    <span className="text-base text-amber-700">{progress.preQuizScore !== null ? `${progress.preQuizScore}/5` : '-'}</span>
+                  </div>
+                  <div className="bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
+                    <span className="block text-[10px] text-slate-500">{language === 'ms' ? 'Pasca-Kuiz' : 'Post-Quiz'}</span>
+                    <span className="text-base text-emerald-700">{progress.postQuizScore !== null ? `${progress.postQuizScore}/5` : '-'}</span>
+                  </div>
+                  <div className="bg-purple-50 p-2.5 rounded-xl border border-purple-200">
+                    <span className="block text-[10px] text-slate-500">{language === 'ms' ? 'Tarikh' : 'Date'}</span>
+                    <span className="text-[10px] text-purple-900 font-extrabold">{currentDateFormatted}</span>
+                  </div>
+                </div>
+
+                <div className="pt-2 text-xs font-quicksand font-semibold text-slate-500">
+                  {language === 'ms'
+                    ? 'Disahkan oleh Fino Si Musang • FractionQuest KSSR Tahun 4'
+                    : 'Verified by Fino the Explorer Fox • FractionQuest Year 4 KSSR'}
+                </div>
+              </div>
+
+              {/* Working Print / Save PDF Button */}
+              <div className="flex justify-center pt-2">
+                <button
+                  onClick={handlePrintCertificate}
+                  className="px-8 py-3.5 bg-amber-500 hover:bg-amber-600 text-white font-fredoka font-extrabold text-base rounded-2xl shadow-lg transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <Printer className="w-5 h-5" />
+                  <span>{language === 'ms' ? 'Cetak / Simpan PDF' : 'Print / Save as PDF'}</span>
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
 
@@ -720,7 +912,10 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
         onClose={() => setIsPostQuizOpen(false)}
         title={language === 'ms' ? 'Pasca-Kuiz Minda Pecahan (Tahun 4 KSSR)' : 'Fraction Mind Post-Quiz (Year 4 KSSR)'}
         questions={POST_QUIZ_QUESTIONS}
-        onQuizComplete={(score) => savePostQuizScore(score)}
+        onQuizComplete={(score) => {
+          savePostQuizScore(score);
+          markActivityComplete('ch5_postquiz');
+        }}
       />
     </div>
   );

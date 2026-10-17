@@ -1,5 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
+import { useProgress } from '../../context/ProgressContext';
 import {
   diagnoseFractionAdditionConversion,
   diagnoseFractionAdditionSum,
@@ -14,6 +15,7 @@ import {
   AlertCircle,
   ArrowRight,
   ArrowLeft,
+  Info,
 } from 'lucide-react';
 
 interface Chapter4ActivityProps {
@@ -50,6 +52,7 @@ export const CHAPTER4_QUESTIONS: AdditionQuestion[] = [
 
 export const Chapter4Activity: React.FC<Chapter4ActivityProps> = ({ onComplete }) => {
   const { language, t } = useLanguage();
+  const { markActivityComplete, isActivityComplete } = useProgress();
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Mode: Main Addition Explorer OR Misconception Detective
@@ -89,6 +92,24 @@ export const Chapter4Activity: React.FC<Chapter4ActivityProps> = ({ onComplete }
   const [detDiagnosis, setDetDiagnosis] = useState<DiagnosisResult | null>(null);
   const [detCompleted, setDetCompleted] = useState<boolean>(false);
 
+  // Guidance warning banner state
+  const [warningMsg, setWarningMsg] = useState<string | null>(null);
+
+  const isAdditionDone = qCompleted || isActivityComplete('ch4_addition');
+  const isDetectiveDone = detCompleted || isActivityComplete('ch4_detective');
+
+  useEffect(() => {
+    if (isAdditionDone) {
+      markActivityComplete('ch4_addition');
+    }
+  }, [isAdditionDone]);
+
+  useEffect(() => {
+    if (isDetectiveDone) {
+      markActivityComplete('ch4_detective');
+    }
+  }, [isDetectiveDone]);
+
   const scrollToTop = () => {
     if (containerRef.current && typeof containerRef.current.scrollIntoView === 'function') {
       containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -96,8 +117,30 @@ export const Chapter4Activity: React.FC<Chapter4ActivityProps> = ({ onComplete }
   };
 
   const switchTab = (tab: 'ADDITION' | 'DETECTIVE') => {
+    setWarningMsg(null);
     setActiveTab(tab);
     scrollToTop();
+  };
+
+  const handleNextActivity = () => {
+    if (activeTab === 'ADDITION') {
+      if (!isAdditionDone) {
+        setWarningMsg(
+          language === 'ms'
+            ? 'Sila selesaikan sekurang-kurangnya satu soalan penambahan pecahan terlebih dahulu sebelum meneruskan ke aktiviti seterusnya!'
+            : 'Please complete at least one fraction addition question first before proceeding to the next activity!'
+        );
+        return;
+      }
+      switchTab('DETECTIVE');
+    }
+  };
+
+  const handlePrevActivity = () => {
+    setWarningMsg(null);
+    if (activeTab === 'DETECTIVE') {
+      switchTab('ADDITION');
+    }
   };
 
   // Reset inputs on question switch
@@ -169,6 +212,7 @@ export const Chapter4Activity: React.FC<Chapter4ActivityProps> = ({ onComplete }
     setSumDiagnosis(diag);
     if (diag.isCorrect) {
       setQCompleted(true);
+      markActivityComplete('ch4_addition');
       setSeqStep(5);
     }
   };
@@ -183,6 +227,7 @@ export const Chapter4Activity: React.FC<Chapter4ActivityProps> = ({ onComplete }
     setDetDiagnosis(diag);
     if (diag.isCorrect) {
       setDetCompleted(true);
+      markActivityComplete('ch4_detective');
       if (onComplete) onComplete();
     }
   };
@@ -219,6 +264,7 @@ export const Chapter4Activity: React.FC<Chapter4ActivityProps> = ({ onComplete }
           >
             <Sparkles className="w-4 h-4" />
             <span>{language === 'ms' ? 'Cabaran Penambahan' : 'Addition Challenge'}</span>
+            {isAdditionDone && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />}
           </button>
           <button
             onClick={() => switchTab('DETECTIVE')}
@@ -230,9 +276,20 @@ export const Chapter4Activity: React.FC<Chapter4ActivityProps> = ({ onComplete }
           >
             <Search className="w-4 h-4" />
             <span>{language === 'ms' ? 'Detektif Mitos' : 'Misconception Detective'}</span>
+            {isDetectiveDone && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />}
           </button>
         </div>
       </div>
+
+      {/* Warning message callout if user tries to advance prematurely */}
+      {warningMsg && (
+        <div className="bg-amber-50 border-2 border-amber-300 p-4 rounded-2xl flex items-start gap-3 animate-fadeIn shadow-sm">
+          <Info className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+          <p className="font-quicksand font-bold text-xs sm:text-sm text-amber-900 leading-relaxed">
+            {warningMsg}
+          </p>
+        </div>
+      )}
 
       {/* TAB 1: ADDITION CHALLENGE */}
       {activeTab === 'ADDITION' && (
@@ -879,7 +936,7 @@ export const Chapter4Activity: React.FC<Chapter4ActivityProps> = ({ onComplete }
       {/* Prominent Bottom Activity Navigation */}
       <div className="flex items-center justify-between pt-4 border-t-2 border-slate-200">
         <button
-          onClick={() => switchTab('ADDITION')}
+          onClick={handlePrevActivity}
           disabled={activeTab === 'ADDITION'}
           className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed text-purple-900 font-fredoka font-bold text-sm border-2 border-purple-200 shadow-sm transition-all"
         >
@@ -888,7 +945,7 @@ export const Chapter4Activity: React.FC<Chapter4ActivityProps> = ({ onComplete }
         </button>
 
         <button
-          onClick={() => switchTab('DETECTIVE')}
+          onClick={handleNextActivity}
           disabled={activeTab === 'DETECTIVE'}
           className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-purple-600 hover:bg-purple-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-fredoka font-extrabold text-sm sm:text-base shadow-md transition-all"
         >
