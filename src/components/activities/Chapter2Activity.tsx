@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { CheckCircle2, AlertCircle, HelpCircle, Layers, ArrowRight, Sparkles, BookOpen, Leaf } from 'lucide-react';
-import { FinoMascot } from '../FinoMascot';
+import { CheckCircle2, AlertCircle, HelpCircle, Layers, ArrowRight, Sparkles, Leaf } from 'lucide-react';
 
 interface Chapter2ActivityProps {
   onComplete?: () => void;
@@ -60,8 +59,8 @@ export const Chapter2Activity: React.FC<Chapter2ActivityProps> = ({ onComplete }
     if (!trimmedInput) return;
 
     setUserAttempted(true);
-    const parsedNum = parseInt(trimmedInput, 10);
-    const isCorrect = !isNaN(parsedNum) && parsedNum === currentPuzzle.expectedNum;
+    const parsedNum = Number(trimmedInput);
+    const isCorrect = Number.isInteger(parsedNum) && parsedNum === currentPuzzle.expectedNum;
 
     if (isCorrect) {
       setPuzzleCompleted(true);
@@ -82,35 +81,28 @@ export const Chapter2Activity: React.FC<Chapter2ActivityProps> = ({ onComplete }
   };
 
   return (
-    <div className="relative overflow-hidden rounded-[2rem] border-[5px] border-[#986038] bg-[#fff7e6] shadow-[0_18px_38px_rgba(86,63,30,0.20)] space-y-0">
-      {/* Mirror Garden: one illustrated storybook scene, rather than a worksheet header. */}
-      <section className="relative isolate overflow-hidden min-h-[320px] sm:min-h-[350px] bg-gradient-to-b from-[#bef0e3] via-[#e8f5cb] to-[#a8d49c] px-5 sm:px-8 pt-6 pb-10" aria-label={language === 'ms' ? 'Taman Cermin Ajaib' : 'Magical Mirror Garden'}>
-        <div aria-hidden="true" className="absolute top-5 right-[12%] h-24 w-24 rounded-full bg-[#fff1a6] opacity-90 shadow-[0_0_50px_18px_rgba(255,241,166,0.55)]" />
-        <div aria-hidden="true" className="absolute -bottom-24 -left-[15%] h-56 w-[85%] rounded-[50%] bg-[#7fbc92]" />
-        <div aria-hidden="true" className="absolute -bottom-28 right-[-18%] h-60 w-[85%] rounded-[50%] bg-[#4d9878]" />
-        <div aria-hidden="true" className="absolute bottom-5 left-[8%] text-4xl opacity-80">🌼</div>
-        <div aria-hidden="true" className="absolute bottom-9 right-[8%] text-4xl opacity-80">🌷</div>
-        <div aria-hidden="true" className="absolute top-28 left-[9%] text-yellow-100 text-3xl animate-pulse">✦</div>
-        <div aria-hidden="true" className="absolute top-16 right-[30%] text-yellow-100 text-2xl animate-pulse">✧</div>
-        <div className="relative z-10 flex flex-col items-center gap-3 text-center">
-          <span className="inline-flex items-center gap-2 bg-[#fff9eb]/90 border border-[#dcac70] px-4 py-1.5 rounded-full text-[#82522d] font-fredoka text-xs sm:text-sm font-bold shadow-sm"><BookOpen className="w-4 h-4" />{language === 'ms' ? '📖 Halaman 2 · Taman Cermin Ajaib' : '📖 Page 2 · Magical Mirror Garden'}</span>
-          <h3 className="font-fredoka text-3xl sm:text-4xl font-extrabold text-[#58361e] drop-shadow-sm">{language === 'ms' ? 'Rahsia Cermin Pecahan' : 'The Secret of the Fraction Mirrors'}</h3>
-          <p className="max-w-xl font-quicksand font-bold text-[#355d4e] text-sm sm:text-base">{language === 'ms' ? 'Setiap cermin menunjukkan bahagian yang berbeza. Bolehkah kamu menemui dua pecahan yang bernilai sama?' : 'Each mirror reveals different pieces. Can you discover two fractions with the same value?'}</p>
-        </div>
-        <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-end justify-center gap-3 sm:gap-5 mt-5">
-          <div className="shrink-0"><FinoMascot expression={puzzleCompleted ? 'excited' : 'thinking'} size="lg" /></div>
-          <div className="relative max-w-lg rounded-[1.5rem] border-[3px] border-[#dbad73] bg-[#fffaf0]/95 shadow-lg px-5 py-4 text-left">
-            <span aria-hidden="true" className="absolute -left-3 bottom-7 w-5 h-5 rotate-45 border-l-[3px] border-b-[3px] border-[#dbad73] bg-[#fffaf0] hidden sm:block" />
-            <p className="font-fredoka text-sm text-[#ae632e] font-bold mb-1">✨ {language === 'ms' ? 'Fino Si Musang' : 'Fino the Explorer Fox'}</p>
-            <p className="font-quicksand text-[#4e4839] font-bold text-sm sm:text-base leading-relaxed">{language === 'ms' ? 'Lihat dua jalur pecahan di bawah! Cuba bahagikan setiap kepingan kepada bahagian yang lebih kecil. Adakah luas kawasan berwarna berubah?' : 'Look at the two fraction bars below! Try splitting each piece into smaller parts. Does the shaded area change?'}</p>
-          </div>
-        </div>
-      </section>
-      <div className="relative z-10 space-y-6 px-4 sm:px-7 py-7 bg-gradient-to-b from-[#fff8e9] to-[#fffdf8]">
+    <div className="relative rounded-[1.75rem] border-[3px] border-[#b88958] bg-[#fffaf0] p-4 sm:p-6 shadow-[0_9px_0_#ead6b7] space-y-5">
+      {/* ChapterView already provides the illustrated forest scene.
+          Keep this activity inside its own normal-flow panel to avoid overlapping scenes. */}
+      <div className="flex flex-col gap-3 rounded-[1.25rem] border-2 border-[#a5cbaa] bg-gradient-to-r from-[#e4f4df] to-[#fff4d6] p-4 sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="inline-flex items-center gap-2 font-fredoka text-[#915b32] font-bold text-sm"><Leaf className="w-4 h-4" />{language === 'ms' ? 'Cabaran Cermin Ajaib' : 'Magical Mirror Challenge'}</span>
-          <span className="text-xs font-fredoka font-bold text-[#4b765a] bg-[#e2f3de] px-3 py-1 rounded-full">{language === 'ms' ? `Cermin ${currentPuzzleIdx + 1} / ${PUZZLES.length}` : `Mirror ${currentPuzzleIdx + 1} / ${PUZZLES.length}`}</span>
+          <span className="inline-flex items-center gap-2 font-fredoka font-bold text-sm text-[#476a51]">
+            <Leaf className="h-4 w-4" />
+            {language === 'ms' ? '🌼 Taman Cermin Ajaib' : '🌼 Magical Mirror Garden'}
+          </span>
+          <span className="rounded-full bg-white/90 px-3 py-1 font-fredoka text-xs font-bold text-[#765133]">
+            {language === 'ms' ? `Cermin ${currentPuzzleIdx + 1} / ${PUZZLES.length}` : `Mirror ${currentPuzzleIdx + 1} / ${PUZZLES.length}`}
+          </span>
         </div>
+        <h3 className="font-fredoka text-xl sm:text-2xl font-extrabold text-[#66412a]">
+          {language === 'ms' ? 'Rahsia Cermin Pecahan' : 'The Secret of the Fraction Mirrors'}
+        </h3>
+        <p className="font-quicksand font-semibold text-sm sm:text-base leading-relaxed text-[#385e50]">
+          {language === 'ms'
+            ? 'Fino perlukan bantuanmu! Ubah pembahagian pada jalur pecahan dan perhatikan kawasan berlorek. Bolehkah kamu menemui pecahan yang setara?'
+            : 'Fino needs your help! Change the divisions in the fraction bars and watch the shaded area. Can you discover equivalent fractions?'}
+        </p>
+      </div>
       {/* SECTION 1: INTERACTIVE EXPLORATION (SUBDIVISION WITHOUT REVEALING ANSWER) */}
       <div className="space-y-4 bg-[#eff8e8] p-4 sm:p-6 rounded-[1.5rem] border-[3px] border-[#9bc89e] shadow-[0_5px_0_#d4eacb]">
         <div className="flex items-center justify-between">
@@ -324,7 +316,6 @@ export const Chapter2Activity: React.FC<Chapter2ActivityProps> = ({ onComplete }
             </div>
           </div>
         )}
-      </div>
       </div>
     </div>
   );
