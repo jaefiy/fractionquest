@@ -4,6 +4,8 @@ export interface ProgressState {
   completedChapters: number[]; // e.g. [1, 2]
   currentChapter: number;      // 1 to 5, 0 = Welcome Page
   highestUnlocked: number;     // 1 to 5
+  preQuizScore: number | null; // 0 to 5, null if not attempted
+  postQuizScore: number | null; // 0 to 5, null if not attempted
 }
 
 interface ProgressContextType {
@@ -11,6 +13,8 @@ interface ProgressContextType {
   setCurrentChapter: (chapter: number) => void;
   markChapterComplete: (chapter: number) => void;
   isChapterUnlocked: (chapter: number) => boolean;
+  savePreQuizScore: (score: number) => void;
+  savePostQuizScore: (score: number) => void;
   resetProgress: () => void;
 }
 
@@ -20,6 +24,8 @@ const initialProgress: ProgressState = {
   completedChapters: [],
   currentChapter: 0, // 0 means Welcome page
   highestUnlocked: 1,
+  preQuizScore: null,
+  postQuizScore: null,
 };
 
 const ProgressContext = createContext<ProgressContextType | undefined>(undefined);
@@ -31,7 +37,10 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed && typeof parsed.highestUnlocked === 'number') {
-          return parsed;
+          return {
+            ...initialProgress,
+            ...parsed,
+          };
         }
       }
     } catch {
@@ -75,6 +84,14 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return progress.highestUnlocked >= chapter;
   };
 
+  const savePreQuizScore = (score: number) => {
+    setProgress((prev) => ({ ...prev, preQuizScore: score }));
+  };
+
+  const savePostQuizScore = (score: number) => {
+    setProgress((prev) => ({ ...prev, postQuizScore: score }));
+  };
+
   const resetProgress = () => {
     setProgress(initialProgress);
   };
@@ -86,6 +103,8 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setCurrentChapter,
         markChapterComplete,
         isChapterUnlocked,
+        savePreQuizScore,
+        savePostQuizScore,
         resetProgress,
       }}
     >
