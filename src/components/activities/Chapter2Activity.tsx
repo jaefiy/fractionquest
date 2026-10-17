@@ -27,32 +27,28 @@ export const Chapter2Activity: React.FC<Chapter2ActivityProps> = ({ onComplete }
   const [currentPuzzleIdx, setCurrentPuzzleIdx] = useState<number>(0);
   const currentPuzzle = PUZZLES[currentPuzzleIdx];
 
-  // Dynamic multiplier state, initialized based on current puzzle (targetDen / origDen)
-  const defaultMultiplier = currentPuzzle.targetDen / currentPuzzle.origDen;
-  const [multiplier, setMultiplier] = useState<number>(defaultMultiplier);
+  // Subdivision multiplier (1 to 5) defaulted to 1 so pupil must discover subdividing
+  const [multiplier, setMultiplier] = useState<number>(1);
 
-  // User input for puzzle conversion: ? / targetDen
+  // User input & progression states
   const [userInputNum, setUserInputNum] = useState<string>('');
   const [userAttempted, setUserAttempted] = useState<boolean>(false);
   const [hintLevel, setHintLevel] = useState<number>(0);
   const [puzzleCompleted, setPuzzleCompleted] = useState<boolean>(false);
   const [isLastIncorrect, setIsLastIncorrect] = useState<boolean>(false);
 
-  // Reset all puzzle states whenever active puzzle changes
+  // Reset all puzzle states on question transition
   useEffect(() => {
     setUserInputNum('');
     setUserAttempted(false);
     setHintLevel(0);
     setPuzzleCompleted(false);
     setIsLastIncorrect(false);
-    const newDefaultMult = currentPuzzle.targetDen / currentPuzzle.origDen;
-    setMultiplier(newDefaultMult);
+    setMultiplier(1);
   }, [currentPuzzleIdx, currentPuzzle.origDen, currentPuzzle.targetDen]);
 
-  // Computed fraction values dynamically bound to active question
   const baseNum = currentPuzzle.origNum;
   const baseDen = currentPuzzle.origDen;
-  const equivNum = baseNum * multiplier;
   const equivDen = baseDen * multiplier;
 
   const handleCheckPuzzle = (e?: React.FormEvent) => {
@@ -97,28 +93,30 @@ export const Chapter2Activity: React.FC<Chapter2ActivityProps> = ({ onComplete }
           </h3>
           <p className="font-quicksand text-xs font-semibold text-slate-500">
             {language === 'ms'
-              ? 'Membahagi semula bahagian tanpa mengubah jumlah nilai kawasan tersenarai!'
-              : 'Subdivide existing parts without changing the total shaded value!'}
+              ? 'Membahagi semula bahagian tanpa mengubah jumlah kawasan tersenarai!'
+              : 'Subdivide existing parts without changing the total shaded area!'}
           </p>
         </div>
       </div>
 
-      {/* SECTION 1: INTERACTIVE SUBDIVISION EXPLORER (DYNAMIC TO ACTIVE QUESTION) */}
+      {/* SECTION 1: INTERACTIVE EXPLORATION (SUBDIVISION WITHOUT REVEALING ANSWER) */}
       <div className="space-y-4 bg-emerald-50/50 p-4 rounded-2xl border border-emerald-200">
         <div className="flex items-center justify-between">
           <h4 className="font-fredoka text-base font-bold text-emerald-900 flex items-center gap-2">
             <Layers className="w-5 h-5 text-emerald-600" />
-            {language === 'ms' ? 'Terokai Pembahagian Semula Jalur' : 'Explore Bar Subdivision'}
+            {language === 'ms' ? '1 & 2. Ramal & Terokai Pembahagian Semula' : '1 & 2. Predict & Explore Subdivision'}
           </h4>
-          <span className="text-xs font-fredoka font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full">
-            {baseNum}/{baseDen} = {equivNum}/{equivDen}
+          <span className="text-xs font-fredoka font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full">
+            {language === 'ms' ? `Soalan ${currentPuzzleIdx + 1} daripada ${PUZZLES.length}` : `Question ${currentPuzzleIdx + 1} of ${PUZZLES.length}`}
           </span>
         </div>
 
         {/* Multiplier selector */}
         <div className="space-y-2">
           <label className="font-fredoka text-xs font-bold text-slate-700 block">
-            {language === 'ms' ? 'Pilih Pengganda Pembahagian:' : 'Select Subdivision Multiplier:'}
+            {language === 'ms'
+              ? 'Pilih Pengganda Pembahagian untuk memperhalusi kepingan:'
+              : 'Select Subdivision Multiplier to split the pieces:'}
           </label>
           <div className="flex flex-wrap gap-2">
             {[1, 2, 3, 4, 5].map((m) => (
@@ -138,7 +136,7 @@ export const Chapter2Activity: React.FC<Chapter2ActivityProps> = ({ onComplete }
           </div>
         </div>
 
-        {/* Visual Fraction Bars Display - dynamically follows active puzzle */}
+        {/* Visual Fraction Bars - Dynamic, Unrevealed before check */}
         <div className="space-y-3 pt-2">
           {/* Original Bar */}
           <div>
@@ -160,48 +158,52 @@ export const Chapter2Activity: React.FC<Chapter2ActivityProps> = ({ onComplete }
             </div>
           </div>
 
-          {/* Subdivided Equivalent Bar */}
+          {/* Subdivided Bar - Shows visual grid of pieces without revealing completed numerator */}
           <div>
             <div className="flex justify-between text-xs font-fredoka font-bold text-slate-700 mb-1">
               <span>
-                {language === 'ms' ? 'Jalur Diperhalusi (Didarab ' : 'Subdivided Bar (Multiplied by '}
-                {multiplier}): {equivNum}/{equivDen}
+                {language === 'ms'
+                  ? `Jalur Diperhalusi (${multiplier > 1 ? `Dibahagi ×${multiplier}` : 'Belum Dibahagi'}): ${equivDen} Bahagian`
+                  : `Subdivided Bar (${multiplier > 1 ? `Split ×${multiplier}` : 'Unsplit'}): ${equivDen} Equal Parts`}
               </span>
               <span className="text-emerald-700 font-extrabold">
-                {language === 'ms' ? 'Kawasan berlorek KEKAL SAMA!' : 'Shaded area REMAINS EQUAL!'}
+                {language === 'ms' ? 'Kawasan berlorek KEKAL SAMA!' : 'Shaded region REMAINS EQUAL!'}
               </span>
             </div>
             <div className="w-full h-10 bg-slate-100 border-2 border-slate-300 rounded-xl overflow-hidden flex" data-testid="equivalent-fraction-bar">
-              {Array.from({ length: equivDen }).map((_, i) => (
-                <div
-                  key={i}
-                  style={{ width: `${100 / equivDen}%` }}
-                  className={`h-full border-r border-slate-300/80 last:border-r-0 flex items-center justify-center text-[10px] font-bold transition-all duration-300 ${
-                    i < equivNum ? 'bg-emerald-500 text-white' : 'bg-slate-50 text-slate-300'
-                  }`}
-                >
-                  1/{equivDen}
-                </div>
-              ))}
+              {Array.from({ length: equivDen }).map((_, i) => {
+                const isShaded = i < baseNum * multiplier;
+                return (
+                  <div
+                    key={i}
+                    style={{ width: `${100 / equivDen}%` }}
+                    className={`h-full border-r border-slate-300/80 last:border-r-0 flex items-center justify-center text-[10px] font-bold transition-all duration-300 ${
+                      isShaded ? 'bg-emerald-500 text-white' : 'bg-slate-50 text-slate-300'
+                    }`}
+                  >
+                    1/{equivDen}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
       </div>
 
-      {/* SECTION 2: CONVERSION PUZZLES WITH WORKING CHECK ANSWER & PROGRESSIVE HINTS */}
+      {/* SECTION 2: CONSTRUCT, CHECK & EXPLAIN */}
       <div className="space-y-4 bg-amber-50/60 p-4 rounded-2xl border border-amber-200">
         <div className="flex items-center justify-between">
           <h4 className="font-fredoka text-base font-bold text-amber-900 flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-amber-600" />
-            {language === 'ms' ? 'Cabaran Cabang Pecahan Setara' : 'Equivalent Fraction Puzzle'} ({currentPuzzleIdx + 1}/{PUZZLES.length})
+            {language === 'ms' ? '3. Bina & Semak Pecahan Setara' : '3. Construct & Check Equivalent Fraction'}
           </h4>
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-amber-200 text-center space-y-3">
           <p className="font-quicksand font-bold text-slate-800 text-sm sm:text-base">
             {language === 'ms'
-              ? `Cari pengangka yang sesuai untuk membina pecahan setara:`
-              : `Find the matching numerator to construct an equivalent fraction:`}
+              ? `Kira bilangan bahagian berlorek selepas pembahagian dan bina pecahan setara:`
+              : `Count the shaded pieces after subdivision and construct the equivalent fraction:`}
           </p>
 
           <form onSubmit={handleCheckPuzzle} className="space-y-4">
@@ -258,7 +260,7 @@ export const Chapter2Activity: React.FC<Chapter2ActivityProps> = ({ onComplete }
           </form>
         </div>
 
-        {/* Progressive Fino Hints & Feedback - SHOWN AFTER ATTEMPT */}
+        {/* Progressive Fino Hints & Explanation - SHOWN ONLY AFTER ATTEMPT */}
         {userAttempted && (
           <div
             className={`p-4 rounded-xl border-2 space-y-2 animate-fadeIn ${
@@ -276,28 +278,35 @@ export const Chapter2Activity: React.FC<Chapter2ActivityProps> = ({ onComplete }
                 <HelpCircle className="w-5 h-5 text-sky-600" />
               )}
               <span className={puzzleCompleted ? 'text-emerald-900' : 'text-sky-900'}>
-                {language === 'ms' ? 'Petunjuk Fino:' : "Fino's Guidance:"}
+                {language === 'ms'
+                  ? puzzleCompleted ? '4. Penemuan & Penerangan Fino:' : 'Petunjuk Bimbingan Fino:'
+                  : puzzleCompleted ? "4. Fino's Explanation & Discovery:" : "Fino's Progressive Hint:"}
               </span>
             </div>
 
             <div className="font-quicksand font-semibold text-xs sm:text-sm text-slate-700 space-y-1">
               {puzzleCompleted ? (
-                <p className="text-emerald-800 font-bold">
-                  {language === 'ms'
-                    ? `Syabas! ${currentPuzzle.origNum}/${currentPuzzle.origDen} setara dengan ${currentPuzzle.expectedNum}/${currentPuzzle.targetDen} kerana kedua-dua pengangka dan penyebut didarab dengan ${currentPuzzle.targetDen / currentPuzzle.origDen}.`
-                    : `Great job! ${currentPuzzle.origNum}/${currentPuzzle.origDen} is equivalent to ${currentPuzzle.expectedNum}/${currentPuzzle.targetDen} because both numerator and denominator were multiplied by ${currentPuzzle.targetDen / currentPuzzle.origDen}.`}
-                </p>
+                <div className="space-y-1" data-testid="completed-explanation">
+                  <p className="text-emerald-900 font-extrabold text-base">
+                    {baseNum}/{baseDen} = {currentPuzzle.expectedNum}/{currentPuzzle.targetDen}
+                  </p>
+                  <p className="text-emerald-800">
+                    {language === 'ms'
+                      ? `Syabas! Apabila pengangka (${baseNum}) dan penyebut (${baseDen}) kedua-duanya didarab dengan ${currentPuzzle.targetDen / baseDen}, jumlah kawasan berlorek tidak berubah!`
+                      : `Great job! When numerator (${baseNum}) and denominator (${baseDen}) are both multiplied by ${currentPuzzle.targetDen / baseDen}, the total shaded area remains equal!`}
+                  </p>
+                </div>
               ) : hintLevel === 1 ? (
-                <p className="text-amber-900">
+                <p className="text-amber-900" data-testid="hint-level-1">
                   {language === 'ms'
-                    ? `Jawapan belum tepat, tetapi jangan putus asa! Perhatikan penyebut: Bagaimanakah ${currentPuzzle.origDen} menjadi ${currentPuzzle.targetDen}? Nombor apakah yang perlu didarabkan?`
-                    : `Not quite right yet, but keep trying! Look at the denominator: How does ${currentPuzzle.origDen} become ${currentPuzzle.targetDen}? What factor was multiplied?`}
+                    ? `Perhatikan penyebut: Bagaimanakah ${baseDen} menjadi ${currentPuzzle.targetDen}? Berapakah faktor pendarabannya?`
+                    : `Look at the denominator: How does ${baseDen} become ${currentPuzzle.targetDen}? What factor was multiplied?`}
                 </p>
               ) : (
-                <p className="text-sky-900">
+                <p className="text-sky-900" data-testid="hint-level-2">
                   {language === 'ms'
-                    ? `Petunjuk Lanjutan: Kerana penyebut didarab dengan ${currentPuzzle.targetDen / currentPuzzle.origDen} (${currentPuzzle.origDen} × ${currentPuzzle.targetDen / currentPuzzle.origDen} = ${currentPuzzle.targetDen}), anda mesti mendarab pengangka (${currentPuzzle.origNum}) dengan ${currentPuzzle.targetDen / currentPuzzle.origDen} juga!`
-                    : `Further Hint: Since the denominator was multiplied by ${currentPuzzle.targetDen / currentPuzzle.origDen} (${currentPuzzle.origDen} × ${currentPuzzle.targetDen / currentPuzzle.origDen} = ${currentPuzzle.targetDen}), you must multiply numerator (${currentPuzzle.origNum}) by ${currentPuzzle.targetDen / currentPuzzle.origDen} as well!`}
+                    ? `Petunjuk Lanjutan: Kerana penyebut didarab dengan ${currentPuzzle.targetDen / baseDen} (${baseDen} × ${currentPuzzle.targetDen / baseDen} = ${currentPuzzle.targetDen}), darabkan pengangka (${baseNum}) dengan ${currentPuzzle.targetDen / baseDen} juga!`
+                    : `Further Hint: Since the denominator was multiplied by ${currentPuzzle.targetDen / baseDen} (${baseDen} × ${currentPuzzle.targetDen / baseDen} = ${currentPuzzle.targetDen}), multiply numerator (${baseNum}) by ${currentPuzzle.targetDen / baseDen} as well!`}
                 </p>
               )}
             </div>
