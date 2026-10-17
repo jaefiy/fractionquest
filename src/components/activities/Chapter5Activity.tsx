@@ -285,27 +285,50 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
   });
 
   return (
-    <div ref={containerRef} className="bg-white rounded-3xl p-5 sm:p-6 border-2 border-amber-300 shadow-md space-y-6">
-      {/* Activity Header Banner */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-200 pb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold font-fredoka text-2xl shadow-inner">
-            5
+    <div ref={containerRef} className="rounded-[2rem] border-[5px] border-[#9a663e] bg-[#fff7e7] p-4 sm:p-6 shadow-[0_18px_38px_rgba(86,63,30,0.18)] space-y-7">
+      {/* Final magical book scene - compact so the shared chapter illustration stays visible. */}
+      <section className="relative isolate overflow-hidden rounded-[1.75rem] border-[4px] border-[#9a663e] bg-gradient-to-br from-[#fff1c9] via-[#fff8e8] to-[#dbecd8] shadow-[0_8px_0_#ead5b1] px-5 py-6 sm:px-8 sm:py-8">
+        <div aria-hidden="true" className="pointer-events-none absolute -right-10 -top-12 h-44 w-44 rounded-full bg-[#fff0a6]/80 blur-xl" />
+        <div aria-hidden="true" className="pointer-events-none absolute -bottom-14 -left-16 h-32 w-72 rounded-[50%] bg-[#a6d6ab]/50" />
+        <div className="relative z-10 flex flex-col md:flex-row items-center gap-5 md:gap-8">
+          <div className="relative shrink-0" aria-hidden="true">
+            <div className="absolute inset-0 rounded-full bg-amber-200/60 blur-xl" />
+            <div className="relative h-28 w-28 sm:h-36 sm:w-36 rounded-[1.5rem] rotate-[-6deg] border-[5px] border-[#af7947] bg-[#fff9e8] shadow-[7px_9px_0_#d6bd91] flex items-center justify-center">
+              <BookOpen className="h-16 w-16 sm:h-20 sm:w-20 text-[#a2673d]" strokeWidth={1.5} />
+              <Sparkles className="absolute -right-4 -top-4 h-9 w-9 text-amber-500 animate-pulse" />
+            </div>
           </div>
-          <div>
-            <h3 className="font-fredoka text-xl sm:text-2xl font-extrabold text-slate-800">
-              {language === 'ms' ? 'Misi Terakhir Pecahan' : 'The Final Fraction Quest'}
+          <div className="min-w-0 flex-1 text-center md:text-left space-y-2">
+            <span className="inline-flex items-center gap-2 rounded-full border border-[#ddb77d] bg-[#fffaf0] px-4 py-1 font-fredoka text-xs font-bold text-[#87542d]">
+              <BookOpen className="h-4 w-4" /> {language === 'ms' ? '📖 Halaman Akhir · Buku Pecahan Ajaib' : '📖 Final Page · The Magical Fraction Book'}
+            </span>
+            <h3 className="font-fredoka text-2xl sm:text-3xl font-extrabold text-[#663d29]">
+              {language === 'ms' ? 'Pulihkan Buku Pecahan Ajaib!' : 'Restore the Magical Fraction Book!'}
             </h3>
-            <p className="font-quicksand text-xs sm:text-sm font-semibold text-slate-500">
+            <p className="font-quicksand font-semibold text-sm sm:text-base leading-relaxed text-[#3e6657]">
               {language === 'ms'
-                ? 'Selesaikan cabaran, wawasan dunia sebenar, pasca-kuiz dan dapatkan Sijil Kejayaan!'
-                : 'Solve challenges, real-life word problems, post-quiz, and earn your Certificate!'}
+                ? 'Fino telah menemui semua halaman yang hilang! Selesaikan lima misi terakhir untuk mengembalikan keajaiban buku ini.'
+                : 'Fino has found the missing pages! Complete five final quests to restore the book’s magic.'}
             </p>
           </div>
         </div>
-
+        <div className="relative z-10 mt-6 grid grid-cols-5 gap-2" aria-label={language === 'ms' ? 'Kemajuan lima misi' : 'Five-quest progress'}>
+          {SEQUENCE_TABS.map((tab, index) => {
+            const finished = [isAddDone, isWpDone, isDetDone, isPostQuizDone, isCertUnlocked][index];
+            const current = activeTab === tab;
+            return (
+              <div key={tab} className={`min-w-0 rounded-xl border-2 px-1 py-2 text-center shadow-sm transition-colors ${finished ? 'border-[#5a9b78] bg-[#e0f4df]' : current ? 'border-[#d49a44] bg-[#fff4cc]' : 'border-[#e6d5b4] bg-[#fffaf0]/85'}`}>
+                <div className="text-base sm:text-xl" aria-hidden="true">{finished ? '✨' : current ? '📖' : '📜'}</div>
+                <div className="font-fredoka text-[10px] sm:text-xs font-bold text-[#69452e]">{index + 1} {finished ? '✓' : ''}</div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+      {/* Keep the original navigation and all five interactive learning tasks below. */}
+      <div className="rounded-[1.5rem] border-2 border-[#ecd7ae] bg-[#fffaf1] p-3 sm:p-4 space-y-3">
         {/* Top Activity Tab Shortcuts */}
-        <div className="flex flex-wrap bg-slate-100 p-1 rounded-2xl border border-slate-200 gap-1">
+        <div className="flex flex-wrap justify-center bg-[#f3e5c8] p-2 rounded-2xl border border-[#dfc399] gap-2">
           <button
             onClick={() => switchTab('ADDITION')}
             className={`px-3 py-1.5 rounded-xl font-fredoka font-bold text-xs transition-all flex items-center gap-1 ${
@@ -382,7 +405,7 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
       {/* SECTION 1: FRACTION ADDITION CHALLENGES WITH VARIED DENOMINATORS */}
       {activeTab === 'ADDITION' && (
         <div className="space-y-5 animate-fadeIn">
-          <div className="bg-amber-50 p-4 rounded-2xl border border-amber-200">
+          <div className="bg-[#fff0cb] p-4 rounded-2xl border-2 border-[#e7c28c]">
             <h4 className="font-fredoka text-base font-bold text-amber-900 flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-amber-600" />
               {language === 'ms' ? 'Cabaran Penambahan Variasi Penyebut: 1/4 + 1/6' : 'Varied Denominator Addition Challenge: 1/4 + 1/6'}
@@ -507,7 +530,7 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
       {/* SECTION 2: REAL-LIFE WORD PROBLEMS */}
       {activeTab === 'PROBLEMS' && (
         <div className="space-y-5 animate-fadeIn">
-          <div className="bg-sky-50 p-4 rounded-2xl border border-sky-200 flex items-center justify-between">
+          <div className="bg-[#eaf3f1] p-4 rounded-2xl border-2 border-[#9bcabd] flex flex-wrap gap-3 items-center justify-between">
             <h4 className="font-fredoka text-base font-bold text-sky-900 flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-sky-600" />
               {language === 'ms' ? 'Soalan Kehidupan Sebenar' : 'Real-Life Word Problems'} ({wpIndex + 1}/{WORD_PROBLEMS.length})
@@ -648,7 +671,7 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
       {/* SECTION 3: MISCONCEPTION DETECTIVE QUESTIONS */}
       {activeTab === 'DETECTIVE' && (
         <div className="space-y-5 animate-fadeIn">
-          <div className="bg-purple-900 text-white p-5 rounded-2xl space-y-2">
+          <div className="bg-[#604276] text-white p-5 rounded-2xl border-[3px] border-[#be9dcf] space-y-2">
             <h4 className="font-fredoka text-lg font-bold text-white flex items-center gap-2">
               <Search className="w-5 h-5 text-amber-300" />
               {language === 'ms' ? 'Detektif Mitos Bab 5: 1/4 + 1/6 = 2/10 ?' : 'Chapter 5 Misconception Detective: 1/4 + 1/6 = 2/10 ?'}
@@ -706,7 +729,7 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
       {/* SECTION 4: POST-QUIZ STEP IN SEQUENCE */}
       {activeTab === 'POST_QUIZ' && (
         <div className="space-y-5 animate-fadeIn">
-          <div className="bg-amber-50 p-5 rounded-3xl border-2 border-amber-300 text-center space-y-4">
+          <div className="bg-[#fff2d3] p-5 rounded-3xl border-[3px] border-[#e2b871] text-center space-y-4">
             <div className="w-16 h-16 bg-amber-100 border-2 border-amber-400 text-amber-800 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
               <ClipboardCheck className="w-8 h-8" />
             </div>

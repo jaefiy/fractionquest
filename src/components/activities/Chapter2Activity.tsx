@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { CheckCircle2, AlertCircle, HelpCircle, Layers, ArrowRight, Sparkles } from 'lucide-react';
+import { CheckCircle2, AlertCircle, HelpCircle, Layers, ArrowRight, Sparkles, Leaf } from 'lucide-react';
 
 interface Chapter2ActivityProps {
   onComplete?: () => void;
@@ -59,8 +59,8 @@ export const Chapter2Activity: React.FC<Chapter2ActivityProps> = ({ onComplete }
     if (!trimmedInput) return;
 
     setUserAttempted(true);
-    const parsedNum = parseInt(trimmedInput, 10);
-    const isCorrect = !isNaN(parsedNum) && parsedNum === currentPuzzle.expectedNum;
+    const parsedNum = Number(trimmedInput);
+    const isCorrect = Number.isInteger(parsedNum) && parsedNum === currentPuzzle.expectedNum;
 
     if (isCorrect) {
       setPuzzleCompleted(true);
@@ -81,26 +81,30 @@ export const Chapter2Activity: React.FC<Chapter2ActivityProps> = ({ onComplete }
   };
 
   return (
-    <div className="bg-white rounded-2xl p-5 border-2 border-emerald-200 shadow-sm space-y-6">
-      {/* Header Banner */}
-      <div className="flex items-center gap-3 border-b border-emerald-200 pb-3">
-        <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold font-fredoka text-xl">
-          2
+    <div className="relative rounded-[1.75rem] border-[3px] border-[#b88958] bg-[#fffaf0] p-4 sm:p-6 shadow-[0_9px_0_#ead6b7] space-y-5">
+      {/* ChapterView already provides the illustrated forest scene.
+          Keep this activity inside its own normal-flow panel to avoid overlapping scenes. */}
+      <div className="flex flex-col gap-3 rounded-[1.25rem] border-2 border-[#a5cbaa] bg-gradient-to-r from-[#e4f4df] to-[#fff4d6] p-4 sm:p-5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="inline-flex items-center gap-2 font-fredoka font-bold text-sm text-[#476a51]">
+            <Leaf className="h-4 w-4" />
+            {language === 'ms' ? '🌼 Taman Cermin Ajaib' : '🌼 Magical Mirror Garden'}
+          </span>
+          <span className="rounded-full bg-white/90 px-3 py-1 font-fredoka text-xs font-bold text-[#765133]">
+            {language === 'ms' ? `Cermin ${currentPuzzleIdx + 1} / ${PUZZLES.length}` : `Mirror ${currentPuzzleIdx + 1} / ${PUZZLES.length}`}
+          </span>
         </div>
-        <div>
-          <h3 className="font-fredoka text-xl font-bold text-slate-800">
-            {language === 'ms' ? 'Hutan Pecahan Setara' : 'Forest of Equivalent Fractions'}
-          </h3>
-          <p className="font-quicksand text-xs font-semibold text-slate-500">
-            {language === 'ms'
-              ? 'Membahagi semula bahagian tanpa mengubah jumlah kawasan tersenarai!'
-              : 'Subdivide existing parts without changing the total shaded area!'}
-          </p>
-        </div>
+        <h3 className="font-fredoka text-xl sm:text-2xl font-extrabold text-[#66412a]">
+          {language === 'ms' ? 'Rahsia Cermin Pecahan' : 'The Secret of the Fraction Mirrors'}
+        </h3>
+        <p className="font-quicksand font-semibold text-sm sm:text-base leading-relaxed text-[#385e50]">
+          {language === 'ms'
+            ? 'Fino perlukan bantuanmu! Ubah pembahagian pada jalur pecahan dan perhatikan kawasan berlorek. Bolehkah kamu menemui pecahan yang setara?'
+            : 'Fino needs your help! Change the divisions in the fraction bars and watch the shaded area. Can you discover equivalent fractions?'}
+        </p>
       </div>
-
       {/* SECTION 1: INTERACTIVE EXPLORATION (SUBDIVISION WITHOUT REVEALING ANSWER) */}
-      <div className="space-y-4 bg-emerald-50/50 p-4 rounded-2xl border border-emerald-200">
+      <div className="space-y-4 bg-[#eff8e8] p-4 sm:p-6 rounded-[1.5rem] border-[3px] border-[#9bc89e] shadow-[0_5px_0_#d4eacb]">
         <div className="flex items-center justify-between">
           <h4 className="font-fredoka text-base font-bold text-emerald-900 flex items-center gap-2">
             <Layers className="w-5 h-5 text-emerald-600" />
@@ -143,7 +147,7 @@ export const Chapter2Activity: React.FC<Chapter2ActivityProps> = ({ onComplete }
             <div className="flex justify-between text-xs font-fredoka font-bold text-slate-700 mb-1">
               <span>{language === 'ms' ? 'Jalur Asal:' : 'Original Bar:'} {baseNum}/{baseDen}</span>
             </div>
-            <div className="w-full h-10 bg-slate-100 border-2 border-slate-300 rounded-xl overflow-hidden flex" data-testid="original-fraction-bar">
+            <div className="w-full h-12 bg-[#fffdf7] border-[3px] border-[#a67a4b] rounded-2xl overflow-hidden flex shadow-inner" data-testid="original-fraction-bar">
               {Array.from({ length: baseDen }).map((_, i) => (
                 <div
                   key={i}
@@ -170,7 +174,7 @@ export const Chapter2Activity: React.FC<Chapter2ActivityProps> = ({ onComplete }
                 {language === 'ms' ? 'Kawasan berlorek KEKAL SAMA!' : 'Shaded region REMAINS EQUAL!'}
               </span>
             </div>
-            <div className="w-full h-10 bg-slate-100 border-2 border-slate-300 rounded-xl overflow-hidden flex" data-testid="equivalent-fraction-bar">
+            <div className="w-full h-12 bg-[#fffdf7] border-[3px] border-[#a67a4b] rounded-2xl overflow-hidden flex shadow-inner" data-testid="equivalent-fraction-bar">
               {Array.from({ length: equivDen }).map((_, i) => {
                 const isShaded = i < baseNum * multiplier;
                 return (
@@ -191,7 +195,7 @@ export const Chapter2Activity: React.FC<Chapter2ActivityProps> = ({ onComplete }
       </div>
 
       {/* SECTION 2: CONSTRUCT, CHECK & EXPLAIN */}
-      <div className="space-y-4 bg-amber-50/60 p-4 rounded-2xl border border-amber-200">
+      <div className="space-y-4 bg-[#fff1d6] p-4 sm:p-6 rounded-[1.5rem] border-[3px] border-[#e1bd81] shadow-[0_5px_0_#f6e5c6]">
         <div className="flex items-center justify-between">
           <h4 className="font-fredoka text-base font-bold text-amber-900 flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-amber-600" />
@@ -199,7 +203,7 @@ export const Chapter2Activity: React.FC<Chapter2ActivityProps> = ({ onComplete }
           </h4>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-amber-200 text-center space-y-3">
+        <div className="bg-[#fffdf6] p-4 sm:p-6 rounded-2xl border-2 border-[#e8c998] text-center space-y-3 shadow-sm">
           <p className="font-quicksand font-bold text-slate-800 text-sm sm:text-base">
             {language === 'ms'
               ? `Kira bilangan bahagian berlorek selepas pembahagian dan bina pecahan setara:`

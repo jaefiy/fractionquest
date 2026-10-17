@@ -64,10 +64,10 @@ export const Chapter3Activity: React.FC<Chapter3ActivityProps> = ({ onComplete }
   const handleConvertSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const parsedN1 = parseInt(userN1, 10);
-    const parsedD1 = parseInt(userD1, 10);
-    const parsedN2 = parseInt(userN2, 10);
-    const parsedD2 = parseInt(userD2, 10);
+    const parsedN1 = Number(userN1);
+    const parsedD1 = Number(userD1);
+    const parsedN2 = Number(userN2);
+    const parsedD2 = Number(userD2);
 
     const result = diagnoseFractionAdditionConversion(
       currentPair.n1,
@@ -101,26 +101,48 @@ export const Chapter3Activity: React.FC<Chapter3ActivityProps> = ({ onComplete }
   };
 
   return (
-    <div className="bg-white rounded-2xl p-5 border-2 border-sky-200 shadow-sm space-y-6">
-      {/* Header Banner */}
-      <div className="flex items-center gap-3 border-b border-sky-200 pb-3">
-        <div className="w-10 h-10 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center font-bold font-fredoka text-xl">
-          3
+    <div className="relative space-y-5 rounded-[2rem] border-[4px] border-[#986038] bg-[#fff8e9] p-4 sm:p-6 shadow-[0_15px_35px_rgba(86,63,30,0.16)]">
+      {/* The parent ChapterView already provides the large illustrated chapter scene. */}
+      <div className="relative overflow-hidden rounded-[1.5rem] border-[3px] border-[#b58c5c] bg-gradient-to-b from-[#dbf3e9] via-[#ecf8d8] to-[#b2d8bd] px-4 py-5 sm:px-7">
+        <div aria-hidden="true" className="absolute right-6 top-4 h-16 w-16 rounded-full bg-[#ffebac] shadow-[0_0_32px_rgba(255,235,172,0.75)]" />
+        <div aria-hidden="true" className="pointer-events-none absolute -bottom-12 -left-10 h-32 w-1/2 rounded-[50%] bg-[#84c09f]" />
+        <div aria-hidden="true" className="pointer-events-none absolute -bottom-14 -right-10 h-32 w-1/2 rounded-[50%] bg-[#6daa8b]" />
+        <div className="relative z-10 flex flex-wrap items-center justify-between gap-3">
+          <span className="rounded-full border border-[#b98b58] bg-[#fff8e9]/95 px-3 py-1 font-fredoka text-xs font-bold text-[#755031]">
+            🌉 {language === 'ms' ? 'Jambatan Pecahan Ajaib' : 'The Magical Fraction Bridge'}
+          </span>
+          <span className="rounded-full bg-[#fff8e9]/95 px-3 py-1 font-fredoka text-xs font-bold text-[#346d59]">
+            {language === 'ms' ? `Papan ${pairIdx + 1} daripada ${FRACTION_PAIRS.length}` : `Plank ${pairIdx + 1} of ${FRACTION_PAIRS.length}`}
+          </span>
         </div>
-        <div>
-          <h3 className="font-fredoka text-xl font-bold text-slate-800">
-            {language === 'ms' ? 'Jambatan Bahagian Sama Saiz' : 'Bridge of Equal Parts'}
-          </h3>
-          <p className="font-quicksand text-xs font-semibold text-slate-500">
-            {language === 'ms'
-              ? 'Terokai gandaan sepunya dan tukar pecahan kepada penyebut yang sama!'
-              : 'Explore common multiples and convert fractions to shared denominators!'}
-          </p>
+        <h3 className="relative z-10 mt-3 font-fredoka text-2xl font-extrabold text-[#593c2c] sm:text-3xl">
+          {language === 'ms' ? 'Baiki Jambatan Bahagian Sama!' : 'Repair the Bridge of Equal Parts!'}
+        </h3>
+        <p className="relative z-10 mt-2 max-w-2xl font-quicksand text-sm font-bold text-[#38644d] sm:text-base">
+          {language === 'ms'
+            ? 'Cari gandaan sepunya dan tukarkan kedua-dua pecahan. Setiap cabaran yang diselesaikan akan membaiki satu papan jambatan!'
+            : 'Find common multiples and convert both fractions. Each solved challenge repairs one bridge plank!'}
+        </p>
+        <div className="relative z-10 mt-5 rounded-2xl border-2 border-[#74a8a5] bg-[#78c5cf]/75 px-3 pb-3 pt-4 shadow-inner" aria-label={language === 'ms' ? 'Kemajuan membaiki jambatan' : 'Bridge repair progress'}>
+          <div className="grid grid-cols-4 gap-2 sm:gap-3">
+            {FRACTION_PAIRS.map((pair, index) => {
+              const repaired = index < pairIdx || (index === pairIdx && diagnosis?.isCorrect);
+              return (
+                <div key={pair.id} className={`relative flex h-12 items-center justify-center rounded-lg border-b-[5px] border-x-2 border-t-2 font-fredoka text-base font-bold transition-all duration-500 sm:h-14 ${repaired ? 'border-[#80512b] bg-[#e9b46b] text-[#58381e] shadow-md' : index === pairIdx ? 'border-[#bf8b50] bg-[#ffe4ac] text-[#744d27] shadow-md' : 'border-dashed border-[#7baba8] bg-[#d6ecde]/70 text-[#577a72]'}`}>
+                  {repaired ? '✓' : index + 1}
+                </div>
+              );
+            })}
+          </div>
+          <div className="mt-2 flex justify-between px-1 font-quicksand text-[11px] font-bold text-[#24566a] sm:text-xs">
+            <span>🌿 {language === 'ms' ? 'Tebing pertama' : 'Near bank'}</span>
+            <span>{language === 'ms' ? 'Seberang sungai' : 'Far bank'} 🌳</span>
+          </div>
         </div>
       </div>
 
       {/* SECTION 1: INTERACTIVE COMMON MULTIPLE EXPLORER */}
-      <div className="space-y-4 bg-sky-50/50 p-4 rounded-2xl border border-sky-200">
+      <div className="space-y-4 rounded-[1.5rem] border-[3px] border-[#9ccbb5] bg-[#eef8eb] p-4 shadow-[0_5px_0_#d7e9d6] sm:p-6">
         <div className="flex items-center justify-between">
           <h4 className="font-fredoka text-base font-bold text-sky-900 flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-sky-600" />
@@ -135,7 +157,7 @@ export const Chapter3Activity: React.FC<Chapter3ActivityProps> = ({ onComplete }
         </p>
 
         {/* Row 1: Multiples of d1 */}
-        <div className="space-y-1.5 bg-white p-3 rounded-xl border border-sky-200">
+        <div className="space-y-1.5 rounded-xl border border-[#b3d5c3] bg-white/90 p-3">
           <span className="font-fredoka text-xs font-bold text-sky-900 block">
             {language === 'ms' ? `Gandaan penyebut ${currentPair.d1}:` : `Multiples of denominator ${currentPair.d1}:`}
           </span>
@@ -164,7 +186,7 @@ export const Chapter3Activity: React.FC<Chapter3ActivityProps> = ({ onComplete }
         </div>
 
         {/* Row 2: Multiples of d2 */}
-        <div className="space-y-1.5 bg-white p-3 rounded-xl border border-sky-200">
+        <div className="space-y-1.5 rounded-xl border border-[#b3d5c3] bg-white/90 p-3">
           <span className="font-fredoka text-xs font-bold text-sky-900 block">
             {language === 'ms' ? `Gandaan penyebut ${currentPair.d2}:` : `Multiples of denominator ${currentPair.d2}:`}
           </span>
@@ -194,13 +216,13 @@ export const Chapter3Activity: React.FC<Chapter3ActivityProps> = ({ onComplete }
       </div>
 
       {/* SECTION 2: FRACTION CONVERSION CHALLENGE */}
-      <div className="space-y-4 bg-amber-50/60 p-4 rounded-2xl border border-amber-200">
+      <div className="space-y-4 rounded-[1.5rem] border-[3px] border-[#e0bc83] bg-[#fff1d7] p-4 shadow-[0_5px_0_#f4e4c8] sm:p-6">
         <h4 className="font-fredoka text-base font-bold text-amber-900 flex items-center gap-2">
           <Layers className="w-5 h-5 text-amber-600" />
           {language === 'ms' ? 'Tukar Kedua-Dua Pecahan kepada Penyebut Sepunya' : 'Convert Both Fractions to Common Denominator'}
         </h4>
 
-        <div className="bg-white p-4 rounded-xl border border-amber-200 space-y-4 text-center">
+        <div className="rounded-2xl border-2 border-[#e8c998] bg-[#fffdf6] p-4 text-center shadow-sm space-y-4 sm:p-6">
           <div className="flex flex-wrap items-center justify-center gap-4 text-xl font-fredoka font-extrabold text-slate-800">
             {/* First Fraction Original & Input */}
             <div className="flex items-center gap-2">

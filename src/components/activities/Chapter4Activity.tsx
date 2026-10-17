@@ -16,6 +16,9 @@ import {
   ArrowRight,
   ArrowLeft,
   Info,
+  Castle,
+  LockKeyhole,
+  KeyRound,
 } from 'lucide-react';
 
 interface Chapter4ActivityProps {
@@ -265,52 +268,58 @@ export const Chapter4Activity: React.FC<Chapter4ActivityProps> = ({ onComplete }
   };
 
   return (
-    <div ref={containerRef} className="bg-white rounded-3xl p-5 sm:p-6 border-2 border-lavender-300 shadow-md space-y-6">
-      {/* Activity Header Banner */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-lavender-200 pb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-purple-100 text-purple-800 flex items-center justify-center font-bold font-fredoka text-2xl shadow-inner">
-            4
-          </div>
-          <div>
-            <h3 className="font-fredoka text-xl sm:text-2xl font-extrabold text-slate-800">
-              {language === 'ms' ? 'Istana Penambahan Pecahan' : 'Castle of Fraction Addition'}
+    <div ref={containerRef} className="rounded-[2rem] border-[5px] border-[#906344] bg-[#fff8e9] p-4 sm:p-6 shadow-[0_14px_35px_rgba(86,63,30,0.16)] space-y-6">
+      {/* Compact castle illustration: ChapterView already provides the full story scene. */}
+      <section className="relative isolate overflow-hidden rounded-[1.75rem] border-[3px] border-[#916044] bg-gradient-to-b from-[#e5d9f5] via-[#f2e5ed] to-[#faedcf] px-4 sm:px-7 pt-5 pb-6 shadow-[0_5px_0_#dbc3a7]">
+        <div aria-hidden="true" className="absolute right-[9%] top-5 h-16 w-16 rounded-full bg-[#fff1bb] opacity-80" />
+        <div aria-hidden="true" className="absolute -bottom-16 -left-16 h-32 w-[65%] rounded-[50%] bg-[#9bc6a8] opacity-70" />
+        <div aria-hidden="true" className="absolute -bottom-20 right-[-12%] h-36 w-[60%] rounded-[50%] bg-[#78aa93] opacity-70" />
+        <div className="relative z-10 grid gap-5 md:grid-cols-[1fr_auto] items-center">
+          <div className="space-y-2">
+            <span className="inline-flex items-center gap-2 rounded-full border border-[#cba177] bg-[#fff8e9] px-3 py-1 font-fredoka text-xs font-bold text-[#875330]">
+              <Castle className="h-4 w-4" /> {language === 'ms' ? '🏰 Istana Pecahan Ajaib' : '🏰 Magical Fraction Castle'}
+            </span>
+            <h3 className="font-fredoka text-2xl sm:text-3xl font-extrabold leading-tight text-[#593a2a]">
+              {language === 'ms' ? 'Buka Pintu Istana Pecahan!' : 'Unlock the Fraction Castle!'}
             </h3>
-            <p className="font-quicksand text-xs sm:text-sm font-semibold text-slate-500">
+            <p className="max-w-xl font-quicksand text-sm sm:text-base font-bold leading-relaxed text-[#365d50]">
               {language === 'ms'
-                ? 'Terokai, samakan penyebut, bina pecahan setara, dan tambah pengangka!'
-                : 'Explore, match denominators, construct equivalent fractions, and add numerators!'}
+                ? 'Dua kunci diperlukan: selesaikan cabaran penambahan dan siasat kesilapan pecahan. Bantu Fino membuka pintu istana!'
+                : 'Two keys are needed: solve a fraction addition challenge and investigate a fraction mistake. Help Fino open the castle gate!'}
             </p>
           </div>
+          <div className="flex items-center justify-center gap-2" aria-label={language === 'ms' ? 'Kemajuan membuka pintu istana' : 'Castle gate progress'}>
+            <div className="relative flex h-32 w-36 items-end justify-center rounded-t-[4.5rem] border-[7px] border-[#906344] bg-[#d4a675] shadow-[inset_0_8px_0_#eec993]">
+              <div className="flex h-[100px] w-24 items-center justify-center rounded-t-[3rem] bg-[#674b45] shadow-inner">
+                {isAdditionDone && isDetectiveDone ? <Castle className="h-12 w-12 text-[#ffdf8c]" /> : <LockKeyhole className="h-11 w-11 text-[#f8d69a]" />}
+              </div>
+            </div>
+            <div className="flex flex-col gap-2 text-[#69452f]">
+              <div className={`flex items-center gap-1 rounded-xl border px-2 py-1.5 font-fredoka text-xs font-bold ${isAdditionDone ? 'border-emerald-400 bg-emerald-100' : 'border-[#e1bb86] bg-[#fff7e4]'}`}>
+                {isAdditionDone ? <CheckCircle2 className="h-4 w-4 text-emerald-700" /> : <KeyRound className="h-4 w-4" />}
+                {language === 'ms' ? 'Kunci 1' : 'Key 1'}
+              </div>
+              <div className={`flex items-center gap-1 rounded-xl border px-2 py-1.5 font-fredoka text-xs font-bold ${isDetectiveDone ? 'border-emerald-400 bg-emerald-100' : 'border-[#e1bb86] bg-[#fff7e4]'}`}>
+                {isDetectiveDone ? <CheckCircle2 className="h-4 w-4 text-emerald-700" /> : <KeyRound className="h-4 w-4" />}
+                {language === 'ms' ? 'Kunci 2' : 'Key 2'}
+              </div>
+            </div>
+          </div>
         </div>
+      </section>
 
-        {/* Tab Switcher (Optional Shortcuts) */}
-        <div className="flex bg-slate-100 p-1 rounded-2xl border border-slate-200">
-          <button
-            onClick={() => switchTab('ADDITION')}
-            className={`px-4 py-2 rounded-xl font-fredoka font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 ${
-              activeTab === 'ADDITION'
-                ? 'bg-purple-600 text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Sparkles className="w-4 h-4" />
-            <span>{language === 'ms' ? 'Cabaran Penambahan' : 'Addition Challenge'}</span>
-            {isAdditionDone && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />}
-          </button>
-          <button
-            onClick={() => switchTab('DETECTIVE')}
-            className={`px-4 py-2 rounded-xl font-fredoka font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 ${
-              activeTab === 'DETECTIVE'
-                ? 'bg-purple-600 text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Search className="w-4 h-4" />
-            <span>{language === 'ms' ? 'Detektif Mitos' : 'Misconception Detective'}</span>
-            {isDetectiveDone && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />}
-          </button>
-        </div>
+      {/* The two original challenge modes remain available, including saved progress. */}
+      <div className="flex flex-col sm:flex-row gap-2 rounded-2xl border-2 border-[#d6b48b] bg-[#fff4df] p-2">
+        <button type="button" onClick={() => switchTab('ADDITION')}
+          className={`flex-1 flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-fredoka font-bold text-sm transition-all ${activeTab === 'ADDITION' ? 'bg-[#7152a2] text-white shadow-md' : 'bg-white text-[#664c75] hover:bg-[#f1e8fa]'}`}>
+          <Sparkles className="h-4 w-4" />{language === 'ms' ? 'Kunci 1: Penambahan' : 'Key 1: Addition'}
+          {isAdditionDone && <CheckCircle2 className="h-4 w-4 text-emerald-300" />}
+        </button>
+        <button type="button" onClick={() => switchTab('DETECTIVE')}
+          className={`flex-1 flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-fredoka font-bold text-sm transition-all ${activeTab === 'DETECTIVE' ? 'bg-[#7152a2] text-white shadow-md' : 'bg-white text-[#664c75] hover:bg-[#f1e8fa]'}`}>
+          <Search className="h-4 w-4" />{language === 'ms' ? 'Kunci 2: Detektif' : 'Key 2: Detective'}
+          {isDetectiveDone && <CheckCircle2 className="h-4 w-4 text-emerald-300" />}
+        </button>
       </div>
 
       {/* Warning message callout if user tries to advance prematurely */}
@@ -420,7 +429,7 @@ export const Chapter4Activity: React.FC<Chapter4ActivityProps> = ({ onComplete }
           </div>
 
           {/* SECTION 1: EXPLORE - INTERACTIVE FRACTION BARS MATCHING ACTIVE QUESTION */}
-          <div className="space-y-4 bg-purple-50/50 p-4 sm:p-5 rounded-2xl border border-purple-200">
+          <div className="space-y-4 bg-[#f2edfa] p-4 sm:p-5 rounded-[1.5rem] border-[3px] border-[#c9b5db] shadow-sm">
             <div className="flex items-center justify-between">
               <h4 className="font-fredoka text-base font-bold text-purple-900 flex items-center gap-2">
                 <Layers className="w-5 h-5 text-purple-600" />
@@ -491,7 +500,7 @@ export const Chapter4Activity: React.FC<Chapter4ActivityProps> = ({ onComplete }
 
           {/* SECTION 2: PREDICT */}
           {seqStep >= 2 && (
-            <div className="space-y-4 bg-sky-50/60 p-4 rounded-2xl border border-sky-200 animate-fadeIn">
+            <div className="space-y-4 bg-[#eaf3f1] p-4 rounded-[1.5rem] border-2 border-[#9ac9bd] animate-fadeIn">
               <h4 className="font-fredoka text-base font-bold text-sky-900 flex items-center gap-2">
                 <HelpCircle className="w-5 h-5 text-sky-600" />
                 {language === 'ms' ? '2. Ramalkan Sebelum Menambah' : '2. Predict Before Adding'}
@@ -550,7 +559,7 @@ export const Chapter4Activity: React.FC<Chapter4ActivityProps> = ({ onComplete }
 
           {/* SECTION 3 & 4: ATTEMPT (CONSTRUCT EQUIVALENT FRACTIONS & CALCULATE FINAL SUM) */}
           {seqStep >= 3 && (
-            <div className="space-y-5 bg-amber-50/60 p-4 sm:p-5 rounded-2xl border border-amber-200 animate-fadeIn">
+            <div className="space-y-5 bg-[#fff0d6] p-4 sm:p-5 rounded-[1.5rem] border-[3px] border-[#e1bd81] animate-fadeIn">
               <h4 className="font-fredoka text-base font-bold text-amber-900 flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-amber-600" />
                 {language === 'ms' ? '3 & 4. Bina Pecahan Setara & Kira Hasil Tambah' : '3 & 4. Construct Equivalent Fractions & Calculate Sum'}
@@ -763,7 +772,7 @@ export const Chapter4Activity: React.FC<Chapter4ActivityProps> = ({ onComplete }
       {/* TAB 2: MISCONCEPTION DETECTIVE ACTIVITY */}
       {activeTab === 'DETECTIVE' && (
         <div className="space-y-6 animate-fadeIn">
-          <div className="bg-purple-900 text-white p-5 rounded-2xl space-y-3 shadow-md">
+          <div className="bg-gradient-to-r from-[#584374] to-[#806297] text-white p-5 rounded-[1.5rem] space-y-3 shadow-md border-[3px] border-[#c6a7d3]">
             <div className="flex items-center gap-2 text-purple-200">
               <Search className="w-6 h-6 text-amber-300" />
               <h4 className="font-fredoka text-lg font-bold text-white">
