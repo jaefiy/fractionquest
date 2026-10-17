@@ -31,3 +31,15 @@
     transition: none !important;
   }
 }
+
+/* Storybook shell: illustrated paper, page spine, gentle turns and animated companion. */
+.storybook-spread {position:relative; isolation:isolate; background:linear-gradient(90deg,#f7e9d5 0%,#fff9ec 48%,#ead8c0 50%,#fff9ec 52%,#f7e9d5 100%);box-shadow:0 22px 45px rgba(76,51,30,.22),inset 0 0 0 7px rgba(187,136,92,.22); border-radius:24px;}
+.storybook-spread:before {content:""; position:absolute;left:50%;top:20px;bottom:20px;width:5px;background:linear-gradient(90deg,rgba(118,75,43,.16),rgba(255,255,255,.4),rgba(118,75,43,.14));pointer-events:none;z-index:-1;}
+.story-scene {background:radial-gradient(circle at 14% 18%,rgba(255,229,158,.85) 0 7%,transparent 8%),linear-gradient(165deg,#cce9f0 0%,#fef0d6 62%,#d5eac9 100%);border:3px solid #d3b98e;border-radius:24px;position:relative;overflow:hidden;}
+.story-scene:after {content:"✦  ✿  ✧  ✦";position:absolute;right:16px;top:8px;color:#da9f65;opacity:.6;letter-spacing:10px;pointer-events:none;}
+.fino-living {animation:fino-idle 3.5s ease-in-out infinite;transform-origin:50% 80%;}
+@keyframes fino-idle {0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-8px) rotate(2deg)}}
+@keyframes page-enter {from{opacity:.15;transform:perspective(950px) rotateY(-5deg) translateY(12px)}to{opacity:1;transform:perspective(950px) rotateY(0) translateY(0)}}
+.page-turn-enter{animation:page-enter .55s ease-out both;transform-origin:left center}
+@media (max-width:700px){.storybook-spread:before{display:none}}
+@media(prefers-reduced-motion:reduce){.fino-living,.page-turn-enter{animation:none!important}}

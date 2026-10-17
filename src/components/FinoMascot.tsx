@@ -21,7 +21,7 @@ export const FinoMascot: React.FC<FinoMascotProps> = ({
   }[size];
 
   return (
-    <div className={`relative inline-block ${sizeClasses} ${className}`} aria-label={`Fino the Fox (${expression})`}>
+    <div className={`relative inline-block fino-living ${sizeClasses} ${className}`} aria-label={`Fino the Fox (${expression})`}>
       <svg
         viewBox="0 0 200 200"
         className="w-full h-full drop-shadow-md transition-transform duration-300 hover:scale-105"
