@@ -19,6 +19,8 @@ export interface TranslationStructure {
   unlocked: string;
   nextChapter: string;
   prevChapter: string;
+  nextActivity: string;
+  prevActivity: string;
   home: string;
   resetProgress: string;
   confirmReset: string;
@@ -77,6 +79,8 @@ export const translations: Record<Language, TranslationStructure> = {
     unlocked: "Boleh Diterokai",
     nextChapter: "Bab Seterusnya",
     prevChapter: "Bab Sebelum",
+    nextActivity: "Aktiviti Seterusnya",
+    prevActivity: "Aktiviti Sebelum",
     home: "Halaman Utama",
     resetProgress: "Mula Semula Kembara",
     confirmReset: "Adakah anda pasti mahu memulakan semula kembara anda dari awal?",
@@ -133,6 +137,8 @@ export const translations: Record<Language, TranslationStructure> = {
     unlocked: "Available",
     nextChapter: "Next Chapter",
     prevChapter: "Previous Chapter",
+    nextActivity: "Next Activity",
+    prevActivity: "Previous Activity",
     home: "Home",
     resetProgress: "Reset Adventure",
     confirmReset: "Are you sure you want to restart your adventure from the beginning?",

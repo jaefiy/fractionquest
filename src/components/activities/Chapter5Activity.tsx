@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useProgress } from '../../context/ProgressContext';
 import {
@@ -15,6 +15,8 @@ import {
   Award,
   CheckCircle2,
   ClipboardCheck,
+  ArrowRight,
+  ArrowLeft,
 } from 'lucide-react';
 
 interface Chapter5ActivityProps {
@@ -70,12 +72,17 @@ export const WORD_PROBLEMS: WordProblem[] = [
   },
 ];
 
-export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }) => {
-  const { language } = useLanguage();
-  const { progress, savePostQuizScore } = useProgress();
+type Chapter5Tab = 'ADDITION' | 'PROBLEMS' | 'DETECTIVE' | 'POST_QUIZ' | 'CERTIFICATE';
 
-  // Navigation tab state
-  const [activeTab, setActiveTab] = useState<'ADDITION' | 'PROBLEMS' | 'DETECTIVE' | 'CERTIFICATE'>('ADDITION');
+const SEQUENCE_TABS: Chapter5Tab[] = ['ADDITION', 'PROBLEMS', 'DETECTIVE', 'POST_QUIZ', 'CERTIFICATE'];
+
+export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }) => {
+  const { language, t } = useLanguage();
+  const { progress, savePostQuizScore } = useProgress();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Active step in sequence
+  const [activeTab, setActiveTab] = useState<Chapter5Tab>('ADDITION');
 
   // Addition challenge state
   const [addN1] = useState<number>(1);
@@ -111,6 +118,31 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
 
   // Certificate pupil name state
   const [pupilName, setPupilName] = useState<string>('');
+
+  const currentTabIdx = SEQUENCE_TABS.indexOf(activeTab);
+
+  const scrollToTop = () => {
+    if (containerRef.current && typeof containerRef.current.scrollIntoView === 'function') {
+      containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const switchTab = (tab: Chapter5Tab) => {
+    setActiveTab(tab);
+    scrollToTop();
+  };
+
+  const handlePrevTab = () => {
+    if (currentTabIdx > 0) {
+      switchTab(SEQUENCE_TABS[currentTabIdx - 1]);
+    }
+  };
+
+  const handleNextTab = () => {
+    if (currentTabIdx < SEQUENCE_TABS.length - 1) {
+      switchTab(SEQUENCE_TABS[currentTabIdx + 1]);
+    }
+  };
 
   // Handle Addition challenge conversion check
   const handleCheckAddConv = (e: React.FormEvent) => {
@@ -167,7 +199,7 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
   };
 
   return (
-    <div className="bg-white rounded-3xl p-5 sm:p-6 border-2 border-amber-300 shadow-md space-y-6">
+    <div ref={containerRef} className="bg-white rounded-3xl p-5 sm:p-6 border-2 border-amber-300 shadow-md space-y-6">
       {/* Activity Header Banner */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-200 pb-4">
         <div className="flex items-center gap-3">
@@ -186,10 +218,10 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
           </div>
         </div>
 
-        {/* Tab Switcher */}
+        {/* Top Activity Tab Shortcuts */}
         <div className="flex flex-wrap bg-slate-100 p-1 rounded-2xl border border-slate-200 gap-1">
           <button
-            onClick={() => setActiveTab('ADDITION')}
+            onClick={() => switchTab('ADDITION')}
             className={`px-3 py-1.5 rounded-xl font-fredoka font-bold text-xs transition-all flex items-center gap-1 ${
               activeTab === 'ADDITION'
                 ? 'bg-amber-500 text-white shadow-sm'
@@ -197,10 +229,10 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
             }`}
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>{language === 'ms' ? 'Cabaran Akhir' : 'Final Addition'}</span>
+            <span>1. {language === 'ms' ? 'Penambahan' : 'Addition'}</span>
           </button>
           <button
-            onClick={() => setActiveTab('PROBLEMS')}
+            onClick={() => switchTab('PROBLEMS')}
             className={`px-3 py-1.5 rounded-xl font-fredoka font-bold text-xs transition-all flex items-center gap-1 ${
               activeTab === 'PROBLEMS'
                 ? 'bg-amber-500 text-white shadow-sm'
@@ -208,10 +240,10 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
             }`}
           >
             <BookOpen className="w-3.5 h-3.5" />
-            <span>{language === 'ms' ? 'Soalan Kehidupan' : 'Word Problems'}</span>
+            <span>2. {language === 'ms' ? 'Soalan' : 'Problems'}</span>
           </button>
           <button
-            onClick={() => setActiveTab('DETECTIVE')}
+            onClick={() => switchTab('DETECTIVE')}
             className={`px-3 py-1.5 rounded-xl font-fredoka font-bold text-xs transition-all flex items-center gap-1 ${
               activeTab === 'DETECTIVE'
                 ? 'bg-amber-500 text-white shadow-sm'
@@ -219,10 +251,21 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
             }`}
           >
             <Search className="w-3.5 h-3.5" />
-            <span>{language === 'ms' ? 'Detektif Mitos' : 'Detective'}</span>
+            <span>3. {language === 'ms' ? 'Detektif' : 'Detective'}</span>
           </button>
           <button
-            onClick={() => setActiveTab('CERTIFICATE')}
+            onClick={() => switchTab('POST_QUIZ')}
+            className={`px-3 py-1.5 rounded-xl font-fredoka font-bold text-xs transition-all flex items-center gap-1 ${
+              activeTab === 'POST_QUIZ'
+                ? 'bg-amber-500 text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <ClipboardCheck className="w-3.5 h-3.5" />
+            <span>4. {language === 'ms' ? 'Pasca-Kuiz' : 'Post-Quiz'}</span>
+          </button>
+          <button
+            onClick={() => switchTab('CERTIFICATE')}
             className={`px-3 py-1.5 rounded-xl font-fredoka font-bold text-xs transition-all flex items-center gap-1 ${
               activeTab === 'CERTIFICATE'
                 ? 'bg-amber-500 text-white shadow-sm'
@@ -230,7 +273,7 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
             }`}
           >
             <Award className="w-3.5 h-3.5" />
-            <span>{language === 'ms' ? 'Sijil' : 'Certificate'}</span>
+            <span>5. {language === 'ms' ? 'Sijil' : 'Certificate'}</span>
           </button>
         </div>
       </div>
@@ -559,38 +602,43 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
         </div>
       )}
 
-      {/* SECTION 4 & 5: POST-QUIZ & COMPLETION CERTIFICATE */}
-      {activeTab === 'CERTIFICATE' && (
-        <div className="space-y-6 animate-fadeIn">
-          {/* Post Quiz Trigger */}
-          <div className="bg-amber-50 p-5 rounded-3xl border-2 border-amber-300 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <ClipboardCheck className="w-8 h-8 text-amber-600 flex-shrink-0" />
-              <div>
-                <h4 className="font-fredoka text-lg font-bold text-amber-900">
-                  {language === 'ms' ? 'Pasca-Kuiz Minda Pecahan Bab 5' : 'Chapter 5 Post-Quiz'}
-                </h4>
-                <p className="font-quicksand font-semibold text-xs sm:text-sm text-slate-700">
-                  {progress.postQuizScore !== null
-                    ? language === 'ms'
-                      ? `Skor Pasca-Kuiz Anda: ${progress.postQuizScore}/5`
-                      : `Your Post-Quiz Score: ${progress.postQuizScore}/5`
-                    : language === 'ms'
-                    ? 'Selesaikan pasca-kuiz untuk mengesahkan pencapaian kembara anda!'
-                    : 'Complete post-quiz to verify your adventure achievement!'}
-                </p>
-              </div>
+      {/* SECTION 4: POST-QUIZ STEP IN SEQUENCE */}
+      {activeTab === 'POST_QUIZ' && (
+        <div className="space-y-5 animate-fadeIn">
+          <div className="bg-amber-50 p-5 rounded-3xl border-2 border-amber-300 text-center space-y-4">
+            <div className="w-16 h-16 bg-amber-100 border-2 border-amber-400 text-amber-800 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+              <ClipboardCheck className="w-8 h-8" />
+            </div>
+
+            <div className="space-y-1">
+              <h4 className="font-fredoka text-xl font-bold text-amber-900">
+                {language === 'ms' ? 'Pasca-Kuiz Minda Pecahan (5 Soalan)' : 'Fraction Mind Post-Quiz (5 Questions)'}
+              </h4>
+              <p className="font-quicksand font-semibold text-xs sm:text-sm text-slate-700 max-w-md mx-auto">
+                {progress.postQuizScore !== null
+                  ? language === 'ms'
+                    ? `Skor Pasca-Kuiz Anda: ${progress.postQuizScore}/5`
+                    : `Your Post-Quiz Score: ${progress.postQuizScore}/5`
+                  : language === 'ms'
+                  ? 'Uji kemahiran yang telah anda pelajari sepanjang kembara bersama Fino!'
+                  : 'Test the skills you have acquired throughout your adventure with Fino!'}
+              </p>
             </div>
 
             <button
               onClick={() => setIsPostQuizOpen(true)}
-              className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-fredoka font-bold text-xs sm:text-sm rounded-2xl shadow-md transition-all flex items-center gap-2"
+              className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-fredoka font-bold text-sm sm:text-base rounded-2xl shadow-md transition-all inline-flex items-center gap-2"
             >
-              <CheckCircle2 className="w-4 h-4" />
-              <span>{progress.postQuizScore !== null ? (language === 'ms' ? 'Semak Pasca-Kuiz' : 'Review Post-Quiz') : (language === 'ms' ? 'Mula Pasca-Kuiz' : 'Start Post-Quiz')}</span>
+              <CheckCircle2 className="w-5 h-5" />
+              <span>{progress.postQuizScore !== null ? (language === 'ms' ? 'Semak / Mula Semula Pasca-Kuiz' : 'Review / Retake Post-Quiz') : (language === 'ms' ? 'Mula Pasca-Kuiz Sekarang' : 'Start Post-Quiz Now')}</span>
             </button>
           </div>
+        </div>
+      )}
 
+      {/* SECTION 5: COMPLETION CERTIFICATE */}
+      {activeTab === 'CERTIFICATE' && (
+        <div className="space-y-6 animate-fadeIn">
           {/* Certificate Frame */}
           <div className="bg-cream-50 border-8 border-double border-amber-400 rounded-3xl p-6 text-center space-y-4 shadow-xl relative overflow-hidden">
             <div className="inline-flex items-center gap-2 bg-amber-100 text-amber-900 px-4 py-1 rounded-full font-fredoka font-bold text-xs">
@@ -644,6 +692,27 @@ export const Chapter5Activity: React.FC<Chapter5ActivityProps> = ({ onComplete }
           </div>
         </div>
       )}
+
+      {/* Prominent Bottom Activity Navigation */}
+      <div className="flex items-center justify-between pt-4 border-t-2 border-slate-200">
+        <button
+          onClick={handlePrevTab}
+          disabled={currentTabIdx === 0}
+          className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed text-amber-900 font-fredoka font-bold text-sm border-2 border-amber-300 shadow-sm transition-all"
+        >
+          <ArrowLeft className="w-4 h-4 text-amber-600" />
+          <span>{t.prevActivity}</span>
+        </button>
+
+        <button
+          onClick={handleNextTab}
+          disabled={currentTabIdx === SEQUENCE_TABS.length - 1}
+          className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-fredoka font-extrabold text-sm sm:text-base shadow-md transition-all"
+        >
+          <span>{t.nextActivity}</span>
+          <ArrowRight className="w-5 h-5 text-amber-100" />
+        </button>
+      </div>
 
       {/* Post-Quiz Modal */}
       <QuizModal

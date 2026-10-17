@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import {
   diagnoseFractionAdditionConversion,
@@ -13,6 +13,7 @@ import {
   CheckCircle2,
   AlertCircle,
   ArrowRight,
+  ArrowLeft,
 } from 'lucide-react';
 
 interface Chapter4ActivityProps {
@@ -48,7 +49,8 @@ export const CHAPTER4_QUESTIONS: AdditionQuestion[] = [
 ];
 
 export const Chapter4Activity: React.FC<Chapter4ActivityProps> = ({ onComplete }) => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Mode: Main Addition Explorer OR Misconception Detective
   const [activeTab, setActiveTab] = useState<'ADDITION' | 'DETECTIVE'>('ADDITION');
@@ -86,6 +88,17 @@ export const Chapter4Activity: React.FC<Chapter4ActivityProps> = ({ onComplete }
   const [detFinalD, setDetFinalD] = useState<string>('');
   const [detDiagnosis, setDetDiagnosis] = useState<DiagnosisResult | null>(null);
   const [detCompleted, setDetCompleted] = useState<boolean>(false);
+
+  const scrollToTop = () => {
+    if (containerRef.current && typeof containerRef.current.scrollIntoView === 'function') {
+      containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const switchTab = (tab: 'ADDITION' | 'DETECTIVE') => {
+    setActiveTab(tab);
+    scrollToTop();
+  };
 
   // Reset inputs on question switch
   const handleLevelChange = (level: DifficultyLevel) => {
@@ -175,7 +188,7 @@ export const Chapter4Activity: React.FC<Chapter4ActivityProps> = ({ onComplete }
   };
 
   return (
-    <div className="bg-white rounded-3xl p-5 sm:p-6 border-2 border-lavender-300 shadow-md space-y-6">
+    <div ref={containerRef} className="bg-white rounded-3xl p-5 sm:p-6 border-2 border-lavender-300 shadow-md space-y-6">
       {/* Activity Header Banner */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-lavender-200 pb-4">
         <div className="flex items-center gap-3">
@@ -194,10 +207,10 @@ export const Chapter4Activity: React.FC<Chapter4ActivityProps> = ({ onComplete }
           </div>
         </div>
 
-        {/* Tab Switcher */}
+        {/* Tab Switcher (Optional Shortcuts) */}
         <div className="flex bg-slate-100 p-1 rounded-2xl border border-slate-200">
           <button
-            onClick={() => setActiveTab('ADDITION')}
+            onClick={() => switchTab('ADDITION')}
             className={`px-4 py-2 rounded-xl font-fredoka font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 ${
               activeTab === 'ADDITION'
                 ? 'bg-purple-600 text-white shadow-sm'
@@ -208,7 +221,7 @@ export const Chapter4Activity: React.FC<Chapter4ActivityProps> = ({ onComplete }
             <span>{language === 'ms' ? 'Cabaran Penambahan' : 'Addition Challenge'}</span>
           </button>
           <button
-            onClick={() => setActiveTab('DETECTIVE')}
+            onClick={() => switchTab('DETECTIVE')}
             className={`px-4 py-2 rounded-xl font-fredoka font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 ${
               activeTab === 'DETECTIVE'
                 ? 'bg-purple-600 text-white shadow-sm'
@@ -862,6 +875,27 @@ export const Chapter4Activity: React.FC<Chapter4ActivityProps> = ({ onComplete }
           )}
         </div>
       )}
+
+      {/* Prominent Bottom Activity Navigation */}
+      <div className="flex items-center justify-between pt-4 border-t-2 border-slate-200">
+        <button
+          onClick={() => switchTab('ADDITION')}
+          disabled={activeTab === 'ADDITION'}
+          className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed text-purple-900 font-fredoka font-bold text-sm border-2 border-purple-200 shadow-sm transition-all"
+        >
+          <ArrowLeft className="w-4 h-4 text-purple-600" />
+          <span>{t.prevActivity}</span>
+        </button>
+
+        <button
+          onClick={() => switchTab('DETECTIVE')}
+          disabled={activeTab === 'DETECTIVE'}
+          className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-purple-600 hover:bg-purple-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-fredoka font-extrabold text-sm sm:text-base shadow-md transition-all"
+        >
+          <span>{t.nextActivity}</span>
+          <ArrowRight className="w-5 h-5 text-purple-200" />
+        </button>
+      </div>
     </div>
   );
 };
