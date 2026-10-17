@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { CheckCircle2, AlertCircle, HelpCircle, Layers, ArrowRight, Sparkles } from 'lucide-react';
+import { CheckCircle2, AlertCircle, HelpCircle, Layers, ArrowRight, Sparkles, BookOpen, Leaf } from 'lucide-react';
+import { FinoMascot } from '../FinoMascot';
 
 interface Chapter2ActivityProps {
   onComplete?: () => void;
@@ -81,26 +82,37 @@ export const Chapter2Activity: React.FC<Chapter2ActivityProps> = ({ onComplete }
   };
 
   return (
-    <div className="bg-white rounded-2xl p-5 border-2 border-emerald-200 shadow-sm space-y-6">
-      {/* Header Banner */}
-      <div className="flex items-center gap-3 border-b border-emerald-200 pb-3">
-        <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold font-fredoka text-xl">
-          2
+    <div className="relative overflow-hidden rounded-[2rem] border-[5px] border-[#986038] bg-[#fff7e6] shadow-[0_18px_38px_rgba(86,63,30,0.20)] space-y-0">
+      {/* Mirror Garden: one illustrated storybook scene, rather than a worksheet header. */}
+      <section className="relative isolate overflow-hidden min-h-[320px] sm:min-h-[350px] bg-gradient-to-b from-[#bef0e3] via-[#e8f5cb] to-[#a8d49c] px-5 sm:px-8 pt-6 pb-10" aria-label={language === 'ms' ? 'Taman Cermin Ajaib' : 'Magical Mirror Garden'}>
+        <div aria-hidden="true" className="absolute top-5 right-[12%] h-24 w-24 rounded-full bg-[#fff1a6] opacity-90 shadow-[0_0_50px_18px_rgba(255,241,166,0.55)]" />
+        <div aria-hidden="true" className="absolute -bottom-24 -left-[15%] h-56 w-[85%] rounded-[50%] bg-[#7fbc92]" />
+        <div aria-hidden="true" className="absolute -bottom-28 right-[-18%] h-60 w-[85%] rounded-[50%] bg-[#4d9878]" />
+        <div aria-hidden="true" className="absolute bottom-5 left-[8%] text-4xl opacity-80">🌼</div>
+        <div aria-hidden="true" className="absolute bottom-9 right-[8%] text-4xl opacity-80">🌷</div>
+        <div aria-hidden="true" className="absolute top-28 left-[9%] text-yellow-100 text-3xl animate-pulse">✦</div>
+        <div aria-hidden="true" className="absolute top-16 right-[30%] text-yellow-100 text-2xl animate-pulse">✧</div>
+        <div className="relative z-10 flex flex-col items-center gap-3 text-center">
+          <span className="inline-flex items-center gap-2 bg-[#fff9eb]/90 border border-[#dcac70] px-4 py-1.5 rounded-full text-[#82522d] font-fredoka text-xs sm:text-sm font-bold shadow-sm"><BookOpen className="w-4 h-4" />{language === 'ms' ? '📖 Halaman 2 · Taman Cermin Ajaib' : '📖 Page 2 · Magical Mirror Garden'}</span>
+          <h3 className="font-fredoka text-3xl sm:text-4xl font-extrabold text-[#58361e] drop-shadow-sm">{language === 'ms' ? 'Rahsia Cermin Pecahan' : 'The Secret of the Fraction Mirrors'}</h3>
+          <p className="max-w-xl font-quicksand font-bold text-[#355d4e] text-sm sm:text-base">{language === 'ms' ? 'Setiap cermin menunjukkan bahagian yang berbeza. Bolehkah kamu menemui dua pecahan yang bernilai sama?' : 'Each mirror reveals different pieces. Can you discover two fractions with the same value?'}</p>
         </div>
-        <div>
-          <h3 className="font-fredoka text-xl font-bold text-slate-800">
-            {language === 'ms' ? 'Hutan Pecahan Setara' : 'Forest of Equivalent Fractions'}
-          </h3>
-          <p className="font-quicksand text-xs font-semibold text-slate-500">
-            {language === 'ms'
-              ? 'Membahagi semula bahagian tanpa mengubah jumlah kawasan tersenarai!'
-              : 'Subdivide existing parts without changing the total shaded area!'}
-          </p>
+        <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-end justify-center gap-3 sm:gap-5 mt-5">
+          <div className="shrink-0"><FinoMascot expression={puzzleCompleted ? 'excited' : 'thinking'} size="lg" /></div>
+          <div className="relative max-w-lg rounded-[1.5rem] border-[3px] border-[#dbad73] bg-[#fffaf0]/95 shadow-lg px-5 py-4 text-left">
+            <span aria-hidden="true" className="absolute -left-3 bottom-7 w-5 h-5 rotate-45 border-l-[3px] border-b-[3px] border-[#dbad73] bg-[#fffaf0] hidden sm:block" />
+            <p className="font-fredoka text-sm text-[#ae632e] font-bold mb-1">✨ {language === 'ms' ? 'Fino Si Musang' : 'Fino the Explorer Fox'}</p>
+            <p className="font-quicksand text-[#4e4839] font-bold text-sm sm:text-base leading-relaxed">{language === 'ms' ? 'Lihat dua jalur pecahan di bawah! Cuba bahagikan setiap kepingan kepada bahagian yang lebih kecil. Adakah luas kawasan berwarna berubah?' : 'Look at the two fraction bars below! Try splitting each piece into smaller parts. Does the shaded area change?'}</p>
+          </div>
         </div>
-      </div>
-
+      </section>
+      <div className="relative z-10 space-y-6 px-4 sm:px-7 py-7 bg-gradient-to-b from-[#fff8e9] to-[#fffdf8]">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="inline-flex items-center gap-2 font-fredoka text-[#915b32] font-bold text-sm"><Leaf className="w-4 h-4" />{language === 'ms' ? 'Cabaran Cermin Ajaib' : 'Magical Mirror Challenge'}</span>
+          <span className="text-xs font-fredoka font-bold text-[#4b765a] bg-[#e2f3de] px-3 py-1 rounded-full">{language === 'ms' ? `Cermin ${currentPuzzleIdx + 1} / ${PUZZLES.length}` : `Mirror ${currentPuzzleIdx + 1} / ${PUZZLES.length}`}</span>
+        </div>
       {/* SECTION 1: INTERACTIVE EXPLORATION (SUBDIVISION WITHOUT REVEALING ANSWER) */}
-      <div className="space-y-4 bg-emerald-50/50 p-4 rounded-2xl border border-emerald-200">
+      <div className="space-y-4 bg-[#eff8e8] p-4 sm:p-6 rounded-[1.5rem] border-[3px] border-[#9bc89e] shadow-[0_5px_0_#d4eacb]">
         <div className="flex items-center justify-between">
           <h4 className="font-fredoka text-base font-bold text-emerald-900 flex items-center gap-2">
             <Layers className="w-5 h-5 text-emerald-600" />
@@ -143,7 +155,7 @@ export const Chapter2Activity: React.FC<Chapter2ActivityProps> = ({ onComplete }
             <div className="flex justify-between text-xs font-fredoka font-bold text-slate-700 mb-1">
               <span>{language === 'ms' ? 'Jalur Asal:' : 'Original Bar:'} {baseNum}/{baseDen}</span>
             </div>
-            <div className="w-full h-10 bg-slate-100 border-2 border-slate-300 rounded-xl overflow-hidden flex" data-testid="original-fraction-bar">
+            <div className="w-full h-12 bg-[#fffdf7] border-[3px] border-[#a67a4b] rounded-2xl overflow-hidden flex shadow-inner" data-testid="original-fraction-bar">
               {Array.from({ length: baseDen }).map((_, i) => (
                 <div
                   key={i}
@@ -170,7 +182,7 @@ export const Chapter2Activity: React.FC<Chapter2ActivityProps> = ({ onComplete }
                 {language === 'ms' ? 'Kawasan berlorek KEKAL SAMA!' : 'Shaded region REMAINS EQUAL!'}
               </span>
             </div>
-            <div className="w-full h-10 bg-slate-100 border-2 border-slate-300 rounded-xl overflow-hidden flex" data-testid="equivalent-fraction-bar">
+            <div className="w-full h-12 bg-[#fffdf7] border-[3px] border-[#a67a4b] rounded-2xl overflow-hidden flex shadow-inner" data-testid="equivalent-fraction-bar">
               {Array.from({ length: equivDen }).map((_, i) => {
                 const isShaded = i < baseNum * multiplier;
                 return (
@@ -191,7 +203,7 @@ export const Chapter2Activity: React.FC<Chapter2ActivityProps> = ({ onComplete }
       </div>
 
       {/* SECTION 2: CONSTRUCT, CHECK & EXPLAIN */}
-      <div className="space-y-4 bg-amber-50/60 p-4 rounded-2xl border border-amber-200">
+      <div className="space-y-4 bg-[#fff1d6] p-4 sm:p-6 rounded-[1.5rem] border-[3px] border-[#e1bd81] shadow-[0_5px_0_#f6e5c6]">
         <div className="flex items-center justify-between">
           <h4 className="font-fredoka text-base font-bold text-amber-900 flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-amber-600" />
@@ -199,7 +211,7 @@ export const Chapter2Activity: React.FC<Chapter2ActivityProps> = ({ onComplete }
           </h4>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-amber-200 text-center space-y-3">
+        <div className="bg-[#fffdf6] p-4 sm:p-6 rounded-2xl border-2 border-[#e8c998] text-center space-y-3 shadow-sm">
           <p className="font-quicksand font-bold text-slate-800 text-sm sm:text-base">
             {language === 'ms'
               ? `Kira bilangan bahagian berlorek selepas pembahagian dan bina pecahan setara:`
@@ -312,6 +324,7 @@ export const Chapter2Activity: React.FC<Chapter2ActivityProps> = ({ onComplete }
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );
