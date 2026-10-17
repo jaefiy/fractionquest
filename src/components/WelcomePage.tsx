@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useProgress } from '../context/ProgressContext';
 import { FinoMascot } from './FinoMascot';
 import { StorybookCard } from './UI/StorybookCard';
-import { BookOpen, Compass, Award, ArrowRight } from 'lucide-react';
+import { QuizModal } from './QuizModal';
+import { PRE_QUIZ_QUESTIONS } from '../data/quizData';
+import { BookOpen, Compass, Award, ArrowRight, ClipboardCheck, CheckCircle2 } from 'lucide-react';
 
 export const WelcomePage: React.FC = () => {
-  const { t } = useLanguage();
-  const { progress, setCurrentChapter } = useProgress();
+  const { language, t } = useLanguage();
+  const { progress, setCurrentChapter, savePreQuizScore } = useProgress();
+  const [isPreQuizOpen, setIsPreQuizOpen] = useState(false);
 
   const handleStart = () => {
     // If pupil has progress, jump to highest unlocked or current, else chapter 1
@@ -30,6 +33,43 @@ export const WelcomePage: React.FC = () => {
           <h1 className="font-fredoka text-3xl sm:text-5xl font-extrabold text-slate-800 tracking-wide mb-2 leading-tight">
             {t.appTitle}
           </h1>
+        </div>
+
+        {/* Pre-Quiz Callout Card */}
+        <div className="bg-amber-50/90 border-2 border-amber-300 rounded-3xl p-4 sm:p-5 mb-6 text-left flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-amber-200 text-amber-800 flex items-center justify-center flex-shrink-0 shadow-inner">
+              <ClipboardCheck className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="font-fredoka text-base sm:text-lg font-bold text-amber-900">
+                {language === 'ms' ? 'Pra-Kuiz Minda Pecahan' : 'Fraction Mind Pre-Quiz'}
+              </h3>
+              <p className="font-quicksand font-semibold text-xs sm:text-sm text-slate-700">
+                {progress.preQuizScore !== null
+                  ? language === 'ms'
+                    ? `Skor Pra-Kuiz Anda: ${progress.preQuizScore}/5`
+                    : `Your Pre-Quiz Score: ${progress.preQuizScore}/5`
+                  : language === 'ms'
+                  ? 'Uji tahap kefahaman awal anda sebelum memulakan kembara!'
+                  : 'Test your initial understanding before starting the adventure!'}
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setIsPreQuizOpen(true)}
+            className="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white font-fredoka font-bold text-xs sm:text-sm shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2"
+          >
+            {progress.preQuizScore !== null ? (
+              <>
+                <CheckCircle2 className="w-4 h-4 text-amber-100" />
+                <span>{language === 'ms' ? 'Semak / Mula Semula Pra-Kuiz' : 'Review / Retake Pre-Quiz'}</span>
+              </>
+            ) : (
+              <span>{language === 'ms' ? 'Mula Pra-Kuiz (5 Soalan)' : 'Start Pre-Quiz (5 Questions)'}</span>
+            )}
+          </button>
         </div>
 
         {/* Mascot & Introduction Frame */}
@@ -77,6 +117,15 @@ export const WelcomePage: React.FC = () => {
           </button>
         </div>
       </StorybookCard>
+
+      {/* Pre-Quiz Modal */}
+      <QuizModal
+        isOpen={isPreQuizOpen}
+        onClose={() => setIsPreQuizOpen(false)}
+        title={language === 'ms' ? 'Pra-Kuiz Minda Pecahan (Tahun 4 KSSR)' : 'Fraction Mind Pre-Quiz (Year 4 KSSR)'}
+        questions={PRE_QUIZ_QUESTIONS}
+        onQuizComplete={(score) => savePreQuizScore(score)}
+      />
     </div>
   );
 };

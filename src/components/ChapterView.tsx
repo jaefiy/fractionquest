@@ -8,6 +8,8 @@ import { ArrowLeft, ArrowRight, Home, Map, BookOpen, CheckCircle } from 'lucide-
 import { Chapter1Activity } from './activities/Chapter1Activity';
 import { Chapter2Activity } from './activities/Chapter2Activity';
 import { Chapter3Activity } from './activities/Chapter3Activity';
+import { Chapter4Activity } from './activities/Chapter4Activity';
+import { Chapter5Activity } from './activities/Chapter5Activity';
 
 interface ChapterViewProps {
   chapter: Chapter;
@@ -16,12 +18,24 @@ interface ChapterViewProps {
 
 export const ChapterView: React.FC<ChapterViewProps> = ({ chapter, onOpenMap }) => {
   const { language, t } = useLanguage();
-  const { progress, setCurrentChapter, markChapterComplete } = useProgress();
+  const { progress, setCurrentChapter, markChapterComplete, isActivityComplete } = useProgress();
 
   const isCompleted = progress.completedChapters.includes(chapter.id);
 
   const handleNext = () => {
-    markChapterComplete(chapter.id);
+    // Check if current chapter's essential activities are done
+    if (chapter.id === 4) {
+      if (isActivityComplete('ch4_addition') && isActivityComplete('ch4_detective')) {
+        markChapterComplete(4);
+      }
+    } else if (chapter.id === 5) {
+      if (isActivityComplete('ch5_addition') && isActivityComplete('ch5_problems') && isActivityComplete('ch5_detective')) {
+        markChapterComplete(5);
+      }
+    } else {
+      markChapterComplete(chapter.id);
+    }
+
     if (chapter.id < 5) {
       setCurrentChapter(chapter.id + 1);
     } else {
@@ -101,20 +115,11 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ chapter, onOpenMap }) 
           {chapter.id === 3 && (
             <Chapter3Activity onComplete={() => markChapterComplete(3)} />
           )}
-          {chapter.id > 3 && (
-            <div className="border-2 border-dashed border-sage-400 bg-sage-50/70 rounded-3xl p-6 text-center space-y-3 my-4">
-              <div className="w-12 h-12 rounded-2xl bg-sage-200 text-sage-700 flex items-center justify-center mx-auto shadow-sm">
-                <BookOpen className="w-6 h-6" />
-              </div>
-              <h4 className="font-fredoka text-base sm:text-lg font-bold text-sage-800">
-                {t.activitySpaceNotice}
-              </h4>
-              <p className="text-xs sm:text-sm font-quicksand font-medium text-sage-600 max-w-lg mx-auto">
-                {language === 'ms'
-                  ? 'Aktiviti interaktif Matematik bagi bab ini bersedia diserapkan dalam tugas akan datang.'
-                  : 'Interactive Mathematics activity for this chapter is scheduled for upcoming tasks.'}
-              </p>
-            </div>
+          {chapter.id === 4 && (
+            <Chapter4Activity onComplete={() => markChapterComplete(4)} />
+          )}
+          {chapter.id === 5 && (
+            <Chapter5Activity onComplete={() => markChapterComplete(5)} />
           )}
         </div>
 
