@@ -68,8 +68,8 @@ export const chaptersData: Chapter[] = [
       en: "Fino arrives at a broken suspension bridge. The bridge planks have different division sizes! Fino cannot combine two planks unless their division sizes (denominators) are made equal first.",
     },
     finoDialogue: {
-      ms: "Awas! Kita TIDAK boleh menambah 1/2 dan 1/4 secara terus menjadi 2/6! Kita mesti tukar 1/2 menjadi 2/4 dahulu supaya penyebutnya sama!",
-      en: "Watch out! We CANNOT directly add 1/2 and 1/4 to get 2/6! We must first convert 1/2 into 2/4 so they share a common denominator!",
+      ms: "Kawan-kawan! Cuba perhatikan papan jambatan ini. Bolehkah kita menggabungkan dua keping papan jika saiz pembahagiannya berbeza? Mari terokai gandaan penyebut untuk mencari saiz bahagian yang sama!",
+      en: "Friends! Look closely at these bridge planks. Can we join two planks if their division sizes are different? Let's explore denominator multiples to find equal division sizes!",
     },
     themeColor: 'skyblue',
     iconName: 'Bridge',
