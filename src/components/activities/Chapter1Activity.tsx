@@ -15,6 +15,7 @@ export const Chapter1Activity: React.FC<Chapter1ActivityProps> = ({ onComplete }
 
   // Sequence state: Step 1 (Explore), Step 2 (Predict), Step 3 (Attempt / Assessment), Step 4 (Discover)
   const [activeStep, setActiveStep] = useState<1 | 2 | 3 | 4>(1);
+  const [explored, setExplored] = useState(false);
 
   // Prediction selection
   const [prediction, setPrediction] = useState<'A' | 'B' | 'EQUAL' | null>(null);
@@ -37,13 +38,13 @@ export const Chapter1Activity: React.FC<Chapter1ActivityProps> = ({ onComplete }
             {language === 'ms' ? `(1 daripada ${denom} bahagian)` : `(1 of ${denom} equal parts)`}
           </span>
         </div>
-        <div className="w-full h-12 bg-slate-100 border-2 border-slate-300 rounded-xl overflow-hidden flex shadow-inner">
+        <div className="w-full h-14 bg-[#fff5da] border-[3px] border-[#af9c74] rounded-xl overflow-hidden flex shadow-inner">
           {parts.map((index) => (
             <div
               key={index}
               style={{ width: `${100 / denom}%` }}
               className={`h-full border-r border-slate-300/80 last:border-r-0 flex items-center justify-center text-xs font-bold transition-all duration-300 ${
-                index === 0 ? colorClass : 'bg-slate-50 text-slate-400'
+                index === 0 ? colorClass : 'bg-[#fff8e8] text-[#99896c]'
               }`}
             >
               1/{denom}
@@ -66,7 +67,7 @@ export const Chapter1Activity: React.FC<Chapter1ActivityProps> = ({ onComplete }
     if (activeStep < 4) {
       setActiveStep(4);
     }
-    if (onComplete) {
+    if (allCorrect && onComplete) {
       onComplete();
     }
   };
@@ -77,7 +78,13 @@ export const Chapter1Activity: React.FC<Chapter1ActivityProps> = ({ onComplete }
   const allCorrect = isQ1Correct && isQ2Correct && isQ3Correct;
 
   return (
-    <div className="bg-white rounded-2xl p-5 border-2 border-amber-200 shadow-sm space-y-6">
+    <div className="rounded-[1.5rem] bg-[#fffaf0] p-3 sm:p-6 border-2 border-[#e1ca93] shadow-sm space-y-6">
+      <div className="rounded-[1.4rem] px-5 py-5 relative overflow-hidden bg-gradient-to-r from-[#d7f2d8] via-[#f3eac2] to-[#f8d3a8] border-2 border-[#9dbb91]">
+        <span className="absolute right-3 top-2 text-3xl" aria-hidden="true">🌳 ✨</span>
+        <span className="font-fredoka text-xs uppercase tracking-widest text-[#56734c]">{language === 'ms' ? 'Misi Hutan Pertama' : 'Your First Forest Mission'}</span>
+        <p className="font-fredoka text-xl sm:text-2xl font-bold text-[#674526] mt-1">{language === 'ms' ? 'Bantu Fino mencari kepingan pecahan yang betul!' : 'Help Fino find the right fraction pieces!'}</p>
+        <p className="font-quicksand font-semibold text-sm text-[#4d6655] mt-2">{language === 'ms' ? 'Teroka dahulu, buat ramalan, kemudian buktikan penemuan anda.' : 'Explore first, make a prediction, then show what you discovered.'}</p>
+      </div>
       {/* Activity Title Banner */}
       <div className="flex items-center gap-3 border-b border-amber-200 pb-3">
         <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold font-fredoka text-xl">
@@ -96,7 +103,7 @@ export const Chapter1Activity: React.FC<Chapter1ActivityProps> = ({ onComplete }
       </div>
 
       {/* Step Navigation Indicator */}
-      <div className="grid grid-cols-4 gap-1.5 sm:gap-2 text-center text-xs font-fredoka font-bold">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 text-center text-xs font-fredoka font-bold">
         <button
           onClick={() => setActiveStep(1)}
           className={`p-2 rounded-xl border transition-all ${
@@ -108,7 +115,8 @@ export const Chapter1Activity: React.FC<Chapter1ActivityProps> = ({ onComplete }
           1. {language === 'ms' ? 'Terokai' : 'Explore'}
         </button>
         <button
-          onClick={() => setActiveStep(2)}
+          onClick={() => { if (explored) setActiveStep(2); }}
+          disabled={!explored}
           className={`p-2 rounded-xl border transition-all ${
             activeStep === 2
               ? 'bg-amber-500 text-white border-amber-600 shadow-sm'
@@ -118,7 +126,8 @@ export const Chapter1Activity: React.FC<Chapter1ActivityProps> = ({ onComplete }
           2. {language === 'ms' ? 'Ramalkan' : 'Predict'}
         </button>
         <button
-          onClick={() => setActiveStep(3)}
+          onClick={() => { if (predictionSubmitted) setActiveStep(3); }}
+          disabled={!predictionSubmitted}
           className={`p-2 rounded-xl border transition-all ${
             activeStep === 3
               ? 'bg-amber-500 text-white border-amber-600 shadow-sm'
@@ -128,7 +137,8 @@ export const Chapter1Activity: React.FC<Chapter1ActivityProps> = ({ onComplete }
           3. {language === 'ms' ? 'Soalan' : 'Attempt'}
         </button>
         <button
-          onClick={() => setActiveStep(4)}
+          onClick={() => { if (assessmentSubmitted) setActiveStep(4); }}
+          disabled={!assessmentSubmitted}
           className={`p-2 rounded-xl border transition-all ${
             activeStep === 4
               ? 'bg-amber-500 text-white border-amber-600 shadow-sm'
@@ -159,7 +169,7 @@ export const Chapter1Activity: React.FC<Chapter1ActivityProps> = ({ onComplete }
               min={2}
               max={10}
               value={denA}
-              onChange={(e) => setDenA(Number(e.target.value))}
+              onChange={(e) => { setDenA(Number(e.target.value)); setExplored(true); setPrediction(null); setPredictionSubmitted(false); }}
               className="w-full accent-amber-500 cursor-pointer"
             />
             <div className="flex justify-between text-[10px] text-slate-400 font-bold">
@@ -177,7 +187,7 @@ export const Chapter1Activity: React.FC<Chapter1ActivityProps> = ({ onComplete }
               min={2}
               max={10}
               value={denB}
-              onChange={(e) => setDenB(Number(e.target.value))}
+              onChange={(e) => { setDenB(Number(e.target.value)); setExplored(true); setPrediction(null); setPredictionSubmitted(false); }}
               className="w-full accent-teal-500 cursor-pointer"
             />
             <div className="flex justify-between text-[10px] text-slate-400 font-bold">
@@ -202,6 +212,12 @@ export const Chapter1Activity: React.FC<Chapter1ActivityProps> = ({ onComplete }
         </div>
       </div>
 
+      {activeStep === 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-2xl bg-[#f7e9c6] border-2 border-[#dfc48a] p-4">
+          <p className="font-fredoka font-semibold text-[#6c4c31] text-sm">{language === 'ms' ? '🌱 Ubah sekurang-kurangnya satu peluncur untuk meneroka saiz kepingan.' : '🌱 Move at least one slider to explore the size of each piece.'}</p>
+          <button type="button" onClick={() => setActiveStep(2)} disabled={!explored} className="rounded-xl bg-[#d87535] disabled:bg-[#b9afa2] text-white font-fredoka font-bold px-5 py-2.5 shadow-sm">{language === 'ms' ? 'Ramalkan →' : 'Make a prediction →'}</button>
+        </div>
+      )}
       {/* SECTION 2: PREDICT */}
       {activeStep >= 2 && (
         <div className="space-y-4 bg-sky-50/60 p-4 rounded-2xl border border-sky-200 animate-fadeIn">
@@ -233,7 +249,7 @@ export const Chapter1Activity: React.FC<Chapter1ActivityProps> = ({ onComplete }
                 className="accent-sky-600"
               />
               <span className="text-sm">
-                1/{denA} {denA < denB ? '>' : '<'} 1/{denB} ({language === 'ms' ? `Kepingan 1/${denA} lebih ${denA < denB ? 'besar' : 'kecil'}` : `Piece 1/${denA} is ${denA < denB ? 'larger' : 'smaller'}`})
+                {language === 'ms' ? `Kepingan A (1/${denA}) lebih besar daripada B (1/${denB})` : `Piece A (1/${denA}) is larger than B (1/${denB})`}
               </span>
             </label>
 
@@ -253,7 +269,7 @@ export const Chapter1Activity: React.FC<Chapter1ActivityProps> = ({ onComplete }
                 className="accent-sky-600"
               />
               <span className="text-sm">
-                1/{denB} {denB < denA ? '>' : '<'} 1/{denA} ({language === 'ms' ? `Kepingan 1/${denB} lebih ${denB < denA ? 'besar' : 'kecil'}` : `Piece 1/${denB} is ${denB < denA ? 'larger' : 'smaller'}`})
+                {language === 'ms' ? `Kepingan B (1/${denB}) lebih besar daripada A (1/${denA})` : `Piece B (1/${denB}) is larger than A (1/${denA})`}
               </span>
             </label>
 
@@ -310,8 +326,9 @@ export const Chapter1Activity: React.FC<Chapter1ActivityProps> = ({ onComplete }
 
             {activeStep === 2 && (
               <button
-                onClick={() => setActiveStep(3)}
-                className="ml-auto px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-fredoka font-bold text-xs sm:text-sm shadow-sm flex items-center gap-1.5"
+                onClick={() => { if (predictionSubmitted) setActiveStep(3); }}
+          disabled={!predictionSubmitted}
+                className="ml-auto px-4 py-2 bg-amber-500 hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl font-fredoka font-bold text-xs sm:text-sm shadow-sm flex items-center gap-1.5"
               >
                 <span>{language === 'ms' ? 'Ke Soalan' : 'To Questions'}</span>
                 <ArrowRight className="w-4 h-4" />
